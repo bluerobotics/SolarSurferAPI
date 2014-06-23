@@ -1,10 +1,12 @@
 # ArchitectJS
 
-An AngularJS driver for [ArchitectDB](https://code.spacex.corp/public/projects/architect/architectdb).
+Data API for the [SolarSurfer](http://bluerobotics.com/) project.
 
 ## Overview
 
-Todo...
+This is the data API for the BlueRobotic's SolarSurfer project. The API access POST requests from the RockSeven data service, saves the data to a database, and offers the data back over a REST API.
+
+This API is nominally available at [http://surfer.bluerobotics.com/](http://surfer.bluerobotics.com/).
 
 ## Setup
 
@@ -14,22 +16,20 @@ npm install
 npm start
 ```
 
-The API then available at [http://localhost:7873/](http://localhost:7873/).
+The API is now available at [http://localhost:7873/](http://localhost:7873/).
 
 ## API
 
-Todo...
+* `POST /_ver_/raw`
+* `GET /_ver_/raw`
+* `GET /_ver_/raw/_id_`
+* `GET /_ver_/telem`
+* `GET /_ver_/telem/_id_`
 
 ## Testing
 
 ```bash
 npm test
-```
-
-Send an fake data packet to the server with `curl`:
-
-```bash
-curl --data "imei=300234010753370&momsn=12345&transmit_time=12-10-10%2010:41:50&iridium_latitude=52.3867&iridium_longitude=0.2938&iridium_cep=8&data=48656c6c6f20576f726c6420526f636b424c4f434b" http://localhost:7873/v0/
 ```
 
 ## Change History
