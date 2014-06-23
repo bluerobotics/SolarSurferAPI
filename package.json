@@ -4,8 +4,8 @@
   "description": "Data API for the SolarSurfer project.",
   "main": "api.js",
   "scripts": {
-    "start": "nodemon api.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "nodemon src/serve.js",
+    "test": "mocha -w --reporter spec"
   },
   "repository": {
     "type": "git",
@@ -20,6 +20,12 @@
   "dependencies": {
     "express": "^4.4.4",
     "nodemon": "^1.2.0",
-    "morgan": "^1.1.1"
+    "morgan": "^1.1.1",
+    "body-parser": "^1.4.3"
+  },
+  "devDependencies": {
+    "mocha": "^1.20.1",
+    "expect.js": "^0.3.1",
+    "supertest": "^0.13.0"
   }
 }
