@@ -20,10 +20,11 @@ Command documents have this format:
 ```json
 {
   "_id": "",
+  "_format": "",
   "_version": "",
   "_time": "",
   "_imei": "000000000000000",
-  "_path": "iridium"
+  "_source": "iridium"
 }
 
 Telemetry documents have this format:
@@ -31,10 +32,11 @@ Telemetry documents have this format:
 ```json
 {
   "_id": "",
+  "_format": "",
   "_version": "",
   "_time": "",
   "_imei": "000000000000000",
-  "_path": "iridium",
+  "_source": "iridium",
   "_momsn": "0",
   "_transmit_time": "14-06-23 02:23:50",
   "_iridium_latitude": "33.8612",
@@ -43,6 +45,15 @@ Telemetry documents have this format:
   "mission": "1"
 }
 ```
+
+Some of the meta properties include:
+
+* `_id` - this is a unique identifier for the storage system
+* `_format` - this refers to the type of message
+ * 0 - a test telemetry message
+ * 1 - a test command message
+ * 2 - a status telemetry message
+* `_version` - this refers to the version of the api spec which should match a version of this documentation
 
 On the two collection endpoints, the following query parameters are supported:
 

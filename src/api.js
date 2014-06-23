@@ -22,7 +22,7 @@ var create_api = function(config) {
     res.json({'hello': 'world'});
   });
 
-  app.post('/raw', function(req, res) {
+  app.post('/raw/tlm', function(req, res) {
     if(config.debug) console.log(req.body);
 
     // dns_callback
@@ -50,6 +50,10 @@ var create_api = function(config) {
       // config says don't check dns, probably for testing
       dns_callback();
     }
+  });
+
+  app.post('/raw/cmd', function(req, res) {
+    res.json(200, {});
   });
 
   return app;

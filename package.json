@@ -12,7 +12,7 @@
     "url": "https://github.com/joshvillbrandt/SolarSurferAPI.git"
   },
   "author": "BlueRobotics",
-  "license": "ISC",
+  "license": "Apache v2",
   "bugs": {
     "url": "https://github.com/joshvillbrandt/SolarSurferAPI/issues"
   },

@@ -26,7 +26,7 @@ describe('api', function() {
     done();
   });
 
-  describe('the /raw endpoint', function() {
+  describe('the /raw/tlm endpoint', function() {
     var post_data;
 
     beforeEach(function(done){
@@ -52,7 +52,7 @@ describe('api', function() {
       api = create_api(config);
 
       // send request
-      request(api).post('/raw')
+      request(api).post('/raw/tlm')
         .send(post_data)
         .expect(401, done);
     });
@@ -62,15 +62,35 @@ describe('api', function() {
       delete post_data.imei;
 
       // send request
-      request(api).post('/raw')
+      request(api).post('/raw/tlm')
         .send(post_data)
         .expect(400, done);
     });
 
     it('should accept POST requests with a good request format', function(done){
       // send request
-      request(api).post('/raw')
+      request(api).post('/raw/tlm')
         .send(post_data)
+        .expect(200, done);
+    });
+  });
+
+  describe('the /raw/cmd endpoint', function() {
+    it('should block POST that fail RockSeven forwarding', function(done){
+      // create a server with raw_post_protected on
+      config.raw_post_protected = true;
+      api = create_api(config);
+
+      // send request
+      request(api).post('/raw/cmd')
+        .send({})
+        .expect(400, done);
+    });
+
+    it('should accept POST requests that are accepted by RockSeven', function(done){
+      // send request
+      request(api).post('/raw/cmd')
+        .send({})
         .expect(200, done);
     });
   });
