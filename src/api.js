@@ -11,7 +11,6 @@ var create_api = function(config) {
 
   // vars
   var app = express();
-  var ver = '/v0';
   // var db = mongoskin.db('mongodb://@localhost:27017/test', {safe:true});
 
   // configure express
@@ -19,11 +18,11 @@ var create_api = function(config) {
   app.use(bodyParser.urlencoded({extended: true}));
   app.use(bodyParser.json());
 
-  app.get(ver+'/telem', function(req, res) {
+  app.get('/tlm', function(req, res) {
     res.json({'hello': 'world'});
   });
 
-  app.post(ver+'/raw', function(req, res) {
+  app.post('/raw', function(req, res) {
     if(config.debug) console.log(req.body);
 
     // dns_callback

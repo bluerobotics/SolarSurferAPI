@@ -5,7 +5,6 @@ var create_api = require('src/api.js');
 
 // common vars
 var config;
-var ver = '/v0';
  
 describe('api', function() {
   var api;
@@ -13,6 +12,7 @@ describe('api', function() {
   beforeEach(function(done){
     // reset config
     config = {
+      version: 'v0',
       port: 0,
       debug: false,
       logging: false,
@@ -34,7 +34,7 @@ describe('api', function() {
       post_data = {
         imei: '000000000000000',
         device_type: 'ROCKBLOCK',
-        serial: '8513',
+        serial: '0000',
         momsn: '0',
         transmit_time: '14-06-23 02:23:50',
         iridium_latitude: '33.8612',
@@ -52,7 +52,7 @@ describe('api', function() {
       api = create_api(config);
 
       // send request
-      request(api).post(ver+'/raw')
+      request(api).post('/raw')
         .send(post_data)
         .expect(401, done);
     });
@@ -62,22 +62,22 @@ describe('api', function() {
       delete post_data.imei;
 
       // send request
-      request(api).post(ver+'/raw')
+      request(api).post('/raw')
         .send(post_data)
         .expect(400, done);
     });
 
     it('should accept POST requests with a good request format', function(done){
       // send request
-      request(api).post(ver+'/raw')
+      request(api).post('/raw')
         .send(post_data)
         .expect(200, done);
     });
   });
 
-  describe('the /telem endpoint', function() {
+  describe('the /tlm endpoint', function() {
     it('should work', function(done){
-      request(api).get(ver+'/telem')
+      request(api).get('/tlm')
         .expect(200, done);
     });
   });
