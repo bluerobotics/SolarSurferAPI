@@ -2,21 +2,21 @@
   "name": "SolarSurferAPI",
   "version": "0.0.0",
   "description": "Data API for the SolarSurfer project.",
-  "main": "api.js",
+  "main": "src/api.js",
   "scripts": {
     "start": "nodemon src/api.js",
     "test": "mocha -w --reporter spec"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/joshvillbrandt/SolarSurferAPI.git"
+    "url": "https://github.com/bluerobotics/SolarSurferAPI.git"
   },
   "author": "BlueRobotics",
   "license": "Apache v2",
   "bugs": {
-    "url": "https://github.com/joshvillbrandt/SolarSurferAPI/issues"
+    "url": "https://github.com/bluerobotics/SolarSurferAPI/issues"
   },
-  "homepage": "https://github.com/joshvillbrandt/SolarSurferAPI",
+  "homepage": "https://github.com/bluerobotics/SolarSurferAPI",
   "dependencies": {
     "express": "^4.4.4",
     "nodemon": "^1.2.0",
