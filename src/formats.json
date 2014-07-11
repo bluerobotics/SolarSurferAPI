@@ -1,0 +1,48 @@
+{
+	"version": "1",
+	"shared": {
+		"version": {
+			"type": "uint8_t",
+			"size": 1
+		},
+		"format": {
+			"type": "uint8_t",
+			"size": 1
+		}
+	},
+	"formats": {
+		"0": {
+			"name": "test/string",
+			"payload": [
+				"version",
+				"format",
+				{
+					"name": "message",
+					"type": "string",
+					"size": 48
+				}
+			]
+		},
+		"0": {
+			"name": "test/mixed",
+			"payload": [
+				"version",
+				"format"
+			]
+		},
+		"2": {
+			"name": "tlm/status",
+			"payload": [
+				"version",
+				"format"
+			]
+		},
+		"3": {
+			"name": "cmd/control",
+			"payload": [
+				"version",
+				"format"
+			]
+		}
+	}
+}
