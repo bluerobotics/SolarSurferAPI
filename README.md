@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/bluerobotics/SolarSurferAPI.svg?branch=master)](https://travis-ci.org/bluerobotics/SolarSurferAPI)
+
 # ArchitectJS
 
 Data API for the [SolarSurfer](http://bluerobotics.com/) project.
@@ -5,8 +7,6 @@ Data API for the [SolarSurfer](http://bluerobotics.com/) project.
 ## Overview
 
 This is the data API for the BlueRobotic's SolarSurfer project. It offers SolarSurfer command and telemetry history over a RESTful HTTP interface.
-
-Build status: [![Build Status](https://travis-ci.org/bluerobotics/SolarSurferAPI.svg?branch=master)](https://travis-ci.org/bluerobotics/SolarSurferAPI)
 
 ## API
 
