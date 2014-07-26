@@ -5,7 +5,8 @@
   "main": "src/api.js",
   "scripts": {
     "start": "nodemon src/api.js",
-    "test": "mocha -w --reporter spec"
+    "test": "mocha -w --reporter spec",
+    "testonce": "mocha --reporter spec"
   },
   "repository": {
     "type": "git",
