@@ -10,12 +10,20 @@ This is the data API for the BlueRobotic's SolarSurfer project. It offers SolarS
 
 ## API
 
-This API is nominally available at [http://surfer.bluerobotics.com/](http://surfer.bluerobotics.com/). There are four available endpoints:
+This API is nominally available at [http://surfer.bluerobotics.com/](http://surfer.bluerobotics.com/). There are a few available endpoints:
 
-* `/cmd`
-* `/cmd/_id`
-* `/tlm`
-* `/tlm/_id`
+Endpoint | Valid Actions
+--- | ---
+`/cmd` | GET
+`/cmd/_id` | GET
+`/tlm` | GET
+`/tlm/_id` | GET
+`/raw/cmd` | GET, POST
+`/raw/cmd/_id` | GET
+`/raw/tlm` | GET, POST
+`/raw/tlm/_id` | GET
+
+Most the time, users will only care about the non-raw endpoints as these contain the raw byte-streams to and from RockSeven. The two endpoints that support POST requests enforce authentication.
 
 On the collection endpoints, the following query parameters are supported:
 

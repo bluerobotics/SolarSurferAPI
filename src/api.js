@@ -18,6 +18,21 @@ var create_api = function(config) {
   app.use(bodyParser.urlencoded({extended: true}));
   app.use(bodyParser.json());
 
+  app.get('', function(req, res) {
+    res.json([
+      '/cmd',
+      '/raw',
+      '/tlm'
+    ]);
+  });
+
+  app.get('/raw', function(req, res) {
+    res.json([
+      '/raw/cmd',
+      '/raw/tlm'
+    ]);
+  });
+
   app.get('/tlm', function(req, res) {
     res.json({'hello': 'world'});
   });
@@ -70,6 +85,6 @@ if (!module.parent) {
   
   // serve app
   api.listen(config.port, function () {
-    if(config.debug) console.log('Listening on port', config.port);
+    if(config.debug) console.log('Server startup complete: listening on port', config.port);
   });
 }
