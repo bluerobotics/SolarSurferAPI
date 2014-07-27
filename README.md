@@ -52,7 +52,7 @@ To deploy to Heroku, follow [this guide](https://devcenter.heroku.com/articles/g
 
 ```bash
 heroku create  # or git remote add heroku git@heroku.com:appname.git 
-heroku addons:add mongolab
+heroku addons:add mongolab  # requires a credit card added to your Heroku account
 git push heroku master
 heroku open
 ```

@@ -97,7 +97,8 @@ if (!module.parent) {
   var api = create_api(config);
   
   // serve app
-  api.listen(config.port, function () {
-    if(config.debug) console.log('Server startup complete: listening on port', config.port);
+  var port = Number(process.env.PORT || config.port);
+  api.listen(port, function () {
+    if(config.debug) console.log('Server startup complete: listening on port', port);
   });
 }
