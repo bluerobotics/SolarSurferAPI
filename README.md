@@ -57,6 +57,14 @@ git push heroku master
 heroku open
 ```
 
+Once you get up and running, also try out these fun commands:
+
+```
+heroku ps
+heroku logs
+heroku run node
+```
+
 ## Change History
 
 This project uses [semantic versioning](http://semver.org/).
