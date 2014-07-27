@@ -18,6 +18,19 @@ var create_api = function(config) {
   app.use(bodyParser.urlencoded({extended: true}));
   app.use(bodyParser.json());
 
+  var mongo = require('mongodb');
+
+var mongoUri = process.env.MONGOLAB_URI ||
+  process.env.MONGOHQ_URL ||
+  'mongodb://localhost/mydb';
+
+mongo.Db.connect(mongoUri, function (err, db) {
+  db.collection('mydocs', function(er, collection) {
+    collection.insert({'mykey': 'myvalue'}, {safe: true}, function(er,rs) {
+    });
+  });
+});
+
   app.get('', function(req, res) {
     res.json([
       '/cmd',
@@ -80,7 +93,7 @@ module.exports = create_api;
 // serve app if we call the file directly
 if (!module.parent) {
   // build app
-  var config = require('src/config.js');
+  var config = require('./config.js');
   var api = create_api(config);
   
   // serve app

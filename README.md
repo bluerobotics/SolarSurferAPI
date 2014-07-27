@@ -6,7 +6,7 @@ Data API for the [SolarSurfer](http://bluerobotics.com/) project.
 
 ## Overview
 
-This is the data API for the BlueRobotic's SolarSurfer project. It offers SolarSurfer command and telemetry history over a RESTful HTTP interface.
+This is the data API for the BlueRobotic's SolarSurfer project. It offers SolarSurfer command and telemetry history over a RESTful HTTP interface. This service is nominally located at  and solarsurfer.herokuapp.com
 
 ## API
 
@@ -46,6 +46,15 @@ To, run the test suite:
 
 ```bash
 npm test
+```
+
+To deploy to Heroku, follow [this guide](https://devcenter.heroku.com/articles/getting-started-with-nodejs). If you already have the Heroku Toolbox installed and have logged into Heroku through your terminal, this basically boils down to:
+
+```bash
+heroku create  # or git remote add heroku git@heroku.com:appname.git 
+heroku addons:add mongolab
+git push heroku master
+heroku open
 ```
 
 ## Change History
