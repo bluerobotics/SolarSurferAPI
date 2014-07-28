@@ -1,7 +1,13 @@
+'use strict';
+/* jslint node: true */
+/* global describe, beforeEach, afterEach, it */
+
 // import
 var request = require('supertest');
 var expect = require('expect.js');
+var _ = require('lodash');
 var create_api = require('src/api.js');
+var standard_config = require('src/config.js');
 
 // common vars
 var config;
@@ -9,27 +15,50 @@ var config;
 describe('api', function() {
   var api;
 
-  beforeEach(function(done){
-    // reset config
-    config = {
-      version: 'v0',
-      port: 0,
-      debug: false,
-      logging: false,
-      raw_post_protected: false,
-      raw_post_domain: 'rock7mobile.com'
-    };
+  beforeEach(function(){
+    // reset testing config
+    config = _.clone(standard_config, true);
+    config.debug = false;
+    config.logging = false;
+    config.auth_enabled = false;
 
     // make app
     api = create_api(config);
+  });
 
-    done();
+  afterEach(function() {
+    // clear the database
+    var doNothing = function() {};
+    for(var i in api.mongoose.connection.collections) {
+      api.mongoose.connection.collections[i].remove(doNothing);
+    }
+  });
+
+  describe('the / endpoint', function() {
+    it('should list child endpoints', function(done){
+      request(api).get('/')
+        .expect(200, done);
+    });
+  });
+
+  describe('the /tlm endpoint', function() {
+    it('should work', function(done){
+      request(api).get('/tlm')
+        .expect(200, done);
+    });
+  });
+
+  describe('the /raw endpoint', function() {
+    it('should list child endpoints', function(done){
+      request(api).get('/raw')
+        .expect(200, done);
+    });
   });
 
   describe('the /raw/tlm endpoint', function() {
     var post_data;
 
-    beforeEach(function(done){
+    beforeEach(function(){
       // reset post_data
       post_data = {
         imei: '000000000000000',
@@ -42,13 +71,11 @@ describe('api', function() {
         iridium_cep: '3',
         data: '48656c6c6f2c20776f726c6421'
       };
-
-      done();
     });
 
     it('should block POST requests from a bad source', function(done){
       // create a server with raw_post_protected on
-      config.raw_post_protected = true;
+      config.auth_enabled = true;
       api = create_api(config);
 
       // send request
@@ -75,29 +102,22 @@ describe('api', function() {
     });
   });
 
-  describe('the /raw/cmd endpoint', function() {
-    it('should block POST that fail RockSeven forwarding', function(done){
-      // create a server with raw_post_protected on
-      config.raw_post_protected = true;
-      api = create_api(config);
+  describe('the /cmd endpoint', function() {
+    // it('should block POST that fail RockSeven forwarding', function(done){
+    //   // create a server with raw_post_protected on
+    //   config.auth_enabled = true;
+    //   api = create_api(config);
 
-      // send request
-      request(api).post('/raw/cmd')
-        .send({})
-        .expect(400, done);
-    });
+    //   // send request
+    //   request(api).post('/raw/cmd')
+    //     .send({})
+    //     .expect(400, done);
+    // });
 
     it('should accept POST requests that are accepted by RockSeven', function(done){
       // send request
-      request(api).post('/raw/cmd')
+      request(api).post('/cmd')
         .send({})
-        .expect(200, done);
-    });
-  });
-
-  describe('the /tlm endpoint', function() {
-    it('should work', function(done){
-      request(api).get('/tlm')
         .expect(200, done);
     });
   });

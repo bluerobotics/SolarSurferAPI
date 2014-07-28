@@ -1,103 +1,61 @@
+'use strict';
+/* jslint node: true */
+
 // import
-var express = require('express'),
-  morgan = require('morgan'),
-  bodyParser = require('body-parser'),
-  dns = require('dns');
-  // mongoskin = require('mongoskin'),
+var express = require('express');
+var morgan = require('morgan');
+var bodyParser = require('body-parser');
+var mongoose = require('mongoose');
 
 // api factory function
 var create_api = function(config) {
-  if(config.debug) console.log('Using config:', config);
+  // override config with environment variables
+  config.port = Number(process.env.PORT || config.port);
+  config.mongo_uri = process.env.MONGOLAB_URI || config.mongo_uri;
+  if(config.logging) console.log('Using config:', config);
 
-  // vars
-  var app = express();
-  // var db = mongoskin.db('mongodb://@localhost:27017/test', {safe:true});
+  // set up server
+  var api = express();
+  api.config = config;
+  if(config.logging !== false) api.use(morgan('short'));
+  api.use(bodyParser.urlencoded({extended: true}));
+  api.use(bodyParser.json());
 
-  // configure express
-  if(config.logging !== false) app.use(morgan('short'));
-  app.use(bodyParser.urlencoded({extended: true}));
-  app.use(bodyParser.json());
+  // set up database
+  if(mongoose.connection.readyState != 1)
+    mongoose.connect(config.mongo_uri);
+  mongoose.connection.on('error', console.error);
+  api.mongoose = mongoose;
+  
+  // import controllers
+  var controllers = require('./controllers.js')(api);
 
-  // var mongo = require('mongodb');
+  // helper routes
+  api.get('', controllers.index);
+  api.get('/raw', controllers.raw);
 
-  // var mongoUri = process.env.MONGOLAB_URI ||
-  //   process.env.MONGOHQ_URL ||
-  //   'mongodb://localhost/mydb';
+  // cmd routes
+  api.get('/cmd', controllers.get_list('cmd'));
+  api.post('/cmd', controllers.post_cmd);
 
-  // mongo.Db.connect(mongoUri, function (err, db) {
-  //   db.collection('mydocs', function(er, collection) {
-  //     collection.insert({'mykey': 'myvalue'}, {safe: true}, function(er,rs) {
-  //     });
-  //   });
-  // });
+  // tlm routes
+  api.get('/tlm', controllers.get_list('tlm'));
+  api.post('/raw/tlm', controllers.post_raw_tlm);
 
-  app.get('', function(req, res) {
-    res.json([
-      '/cmd',
-      '/raw',
-      '/tlm'
-    ]);
-  });
-
-  app.get('/raw', function(req, res) {
-    res.json([
-      '/raw/cmd',
-      '/raw/tlm'
-    ]);
-  });
-
-  app.get('/tlm', function(req, res) {
-    res.json({'hello': 'world'});
-  });
-
-  app.post('/raw/tlm', function(req, res) {
-    if(config.debug) console.log(req.body);
-
-    // dns_callback
-    var dns_callback = function() {
-      // check input format
-      if(req.body.imei === undefined) res.json(400, {});
-      else {
-        // format is good, let's write to the DB
-        res.json(req.body);
-      }
-    };
-    
-    // make sure this is from RockSeven...
-    if(config.raw_post_protected !== false) {
-      if(req._remoteAddress === undefined) res.json(401, {});
-      else {
-        dns.reverse(req._remoteAddress, function(err, domains){
-          if(domains.length < 1 || domains[0] != config.raw_post_domain)
-            res.json(401, {});
-          else dns_callback();
-        });
-      }
-    }
-    else {
-      // config says don't check dns, probably for testing
-      dns_callback();
-    }
-  });
-
-  app.post('/raw/cmd', function(req, res) {
-    res.json(200, {});
-  });
-
-  return app;
+  return api;
 };
 
-// export the app factory for the test package
+// export the api factory for the test package
 module.exports = create_api;
 
-// serve app if we call the file directly
+// serve api if we call the file directly
 if (!module.parent) {
-  // build app
+  // build api
   var config = require('./config.js');
   var api = create_api(config);
   
-  // serve app
-  var port = Number(process.env.PORT || config.port);
+  // serve api
+  var port = 
   api.listen(port, function () {
     if(config.debug) console.log('Server startup complete: listening on port', port);
   });

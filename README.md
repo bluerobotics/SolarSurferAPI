@@ -6,22 +6,22 @@ Data API for the [SolarSurfer](http://bluerobotics.com/) project.
 
 ## Overview
 
-This is the data API for the BlueRobotic's SolarSurfer project. It offers SolarSurfer command and telemetry history over a RESTful HTTP interface. This service is nominally located at  and solarsurfer.herokuapp.com
+This is the data API for the BlueRobotic's SolarSurfer project. It offers SolarSurfer command and telemetry history over a RESTful HTTP interface. This service is nominally located at [](http://data.bluerobotics.com/) and [http://solarsurfer.herokuapp.com/](http://solarsurfer.herokuapp.com/).
 
 ## API
 
 This API is nominally available at [http://surfer.bluerobotics.com/](http://surfer.bluerobotics.com/). There are a few available endpoints:
 
-Endpoint | Valid Actions
---- | ---
-`/cmd` | GET
-`/cmd/_id` | GET
-`/tlm` | GET
-`/tlm/_id` | GET
-`/raw/cmd` | GET, POST
-`/raw/cmd/_id` | GET
-`/raw/tlm` | GET, POST
-`/raw/tlm/_id` | GET
+Endpoint | Schema | Valid Actions
+--- | --- | ---
+`/cmd` | [list of cmd documents] | GET, POST
+`/cmd/_id` | {_id, _date, packets, data} | GET
+`/tlm` | [list of tlm documents] | GET
+`/tlm/_id` | {_id, _date, packets, data} | GET
+`/raw/cmd` | {} | GET
+`/raw/cmd/_id` | {} | GET
+`/raw/tlm` | {} | GET, POST
+`/raw/tlm/_id` | {} | GET
 
 Most the time, users will only care about the non-raw endpoints as these contain the raw byte-streams to and from RockSeven. The two endpoints that support POST requests enforce authentication.
 
@@ -75,4 +75,9 @@ This project uses [semantic versioning](http://semver.org/).
 
 ## Todo
 
-* All the things...
+* test database writing
+* test Message expanding / writing to non-raw
+* test POST and PUT white-listing
+* test cmd posting
+* test cmd forwarding
+* test mission and vehicle stuffs
