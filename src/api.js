@@ -42,13 +42,13 @@ var create_api = function(config, callback) {
 
       // cmd routes
       api.get('/cmd', controllers.get_list(models.Cmd));
-      api.post('/cmd', controllers.post_cmd);
+      api.post('/cmd', controllers.post(models.Cmd));
       api.get('/raw/cmd', controllers.get_list(models.RawCmd));
 
       // tlm routes
       api.get('/tlm', controllers.get_list(models.Tlm));
       api.get('/raw/tlm', controllers.get_list(models.RawTlm));
-      api.post('/raw/tlm', controllers.post_raw_tlm);
+      api.post('/raw/tlm', controllers.post(models.RawTlm, 200));
 
       // api build is complete!
       if(callback) callback();
@@ -75,6 +75,6 @@ if (!module.parent) {
     api.listen(config.port, function () {
       if(config.debug) console.log('Server startup complete: listening on port', config.port);
     });
-    
+
   });
 }

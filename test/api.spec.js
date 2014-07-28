@@ -3,6 +3,7 @@
 /* global describe, beforeEach, afterEach, it */
 
 // import
+var async = require('async');
 var request = require('supertest');
 var expect = require('expect.js');
 var _ = require('lodash');
@@ -34,28 +35,57 @@ describe('api', function() {
     }
   });
 
-  describe('/ endpoint', function() {
+  describe('GET to the / endpoint', function() {
     it('should list child endpoints', function(done){
       request(api).get('/')
         .expect(200, done);
     });
   });
 
-  describe('/tlm endpoint', function() {
-    it('should work', function(done){
-      request(api).get('/tlm')
-        .expect(200, done);
+  describe('POST to the /cmd endpoint', function() {
+    it('should block requests with a bad request format', function(){
+    });
+
+    it('should add document to /cmd', function(){
+    });
+
+    it('should add the encoded document to /raw/cmd', function(){
+    });
+
+    it('should forward an encoded message to RockSeven', function(){
+    });
+
+    it('should return the response code from RockSeven forwarding', function(done){
+      // send request
+      request(api).post('/cmd')
+        .send({})
+        .expect(201, done);
+    });
+
+    describe('with auth enabled', function() {
+      beforeEach(function(done){
+        // create a server with raw_post_protected on
+        config.auth_enabled = true;
+        api = create_api(config, done);
+      });
+
+      it('should block requests from a bad source', function(){
+        // // send request
+        // request(api).post('/raw/cmd')
+        //   .send({})
+        //   .expect(400, done);
+      });
     });
   });
 
-  describe('/raw endpoint', function() {
+  describe('GET to the /raw endpoint', function() {
     it('should list child endpoints', function(done){
       request(api).get('/raw')
         .expect(200, done);
     });
   });
 
-  describe('/raw/tlm endpoint', function() {
+  describe('POST to the /raw/tlm endpoint', function() {
     var post_data;
 
     beforeEach(function() {
@@ -73,22 +103,7 @@ describe('api', function() {
       };
     });
 
-    describe('with auth enabled', function() {
-      beforeEach(function(done){
-        // create a server with raw_post_protected on
-        config.auth_enabled = true;
-        api = create_api(config, done);
-      });
-
-      it('should block POST requests from a bad source', function(done){
-        // send request
-        request(api).post('/raw/tlm')
-          .send(post_data)
-          .expect(401, done);
-      });
-    });
-
-    it('should block POST requests with a bad request format', function(done){
+    it('should block requests with a bad request format', function(done){
       // mess up the request data
       delete post_data.imei;
 
@@ -98,36 +113,103 @@ describe('api', function() {
         .expect(400, done);
     });
 
-    it('should accept POST requests with a good request format', function(done){
+    it('should add document to /raw/tlm', function(done){
+      async.series([
+
+        // verify that the db is empty
+        function(callback){
+          api.models.RawTlm.count({}, function( err, count){
+            expect(count).to.equal(0);
+            callback();
+          });
+        },
+        
+        // send request
+        function(callback){
+          request(api).post('/raw/tlm')
+            .send(post_data)
+            .expect(200, callback);
+        },
+
+        // verify that a document has been added to the database
+        function(callback){
+          api.models.RawTlm.count({}, function( err, count){
+            expect(count).to.equal(1);
+            callback();
+          });
+        },
+
+      ], done);
+    });
+
+    it('should add the decoded document to /tlm', function(){
+    });
+
+    it('should respond with a 200 on success', function(done){
+      // RockBlock doesn't know (or care) that we are creating a resource (would normally be a 201), it just wants a 200
+
       // send request
       request(api).post('/raw/tlm')
         .send(post_data)
         .expect(200, done);
     });
 
-    it('should insert a document into the raw_tlm collection', function(done){
-      done();
+    describe('with auth enabled', function() {
+      beforeEach(function(done){
+        // create a server with raw_post_protected on
+        config.auth_enabled = true;
+        api = create_api(config, done);
+      });
+
+      it('should block requests from a bad source', function(done){
+        // send request
+        request(api).post('/raw/tlm')
+          .send(post_data)
+          .expect(401, done);
+      });
     });
   });
 
-  describe('/cmd endpoint', function() {
-    // it('should block POST that fail RockSeven forwarding', function(done){
-    //   // create a server with raw_post_protected on
-    //   config.auth_enabled = true;
-    //   api = create_api(config);
-
-    //   // send request
-    //   request(api).post('/raw/cmd')
-    //     .send({})
-    //     .expect(400, done);
-    // });
-
-    it('should accept POST requests that are accepted by RockSeven', function(done){
-      // send request
-      request(api).post('/cmd')
-        .send({})
+  describe('GET to the /raw/tlm endpoint', function() {
+    it('should work', function(done){
+      request(api).get('/tlm')
         .expect(200, done);
     });
+  });
+
+  describe('GET to the /tlm endpoint', function() {
+    it('should work', function(done){
+      request(api).get('/tlm')
+        .expect(200, done);
+    });
+  });
+
+  describe('GET to a collection endpoint', function() {
+    // this covers the shared functionality across all collection endpoints
+
+    it('should return a list of documents', function(done){
+      request(api).get('/tlm')
+        .expect(200)
+        .expect({items:[],meta:{count:0}}, done);
+    });
+
+    // it('should return the total number of available documents', function(done){
+    //   request(api).get('/tlm')
+    //     .expect(200)
+    //     .expect({items:[],meta:{count:0}}, done);
+    // });
+
+    // it('should support a where parameter', function(done){
+    //   request(api).get('/tlm')
+    //     .expect(200)
+    //     .expect({items:[],meta:{count:0}}, done);
+    // });
+
+    // it('should support a limit parameter', function(done){
+    //   request(api).get('/tlm')
+    //     .expect(200)
+    //     .expect({items:[],meta:{count:0}}, done);
+    // });
   });
 
 });
