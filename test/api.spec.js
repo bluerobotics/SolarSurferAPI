@@ -15,7 +15,7 @@ var config;
 describe('api', function() {
   var api;
 
-  beforeEach(function(){
+  beforeEach(function(done) {
     // reset testing config
     config = _.clone(standard_config, true);
     config.debug = false;
@@ -23,7 +23,7 @@ describe('api', function() {
     config.auth_enabled = false;
 
     // make app
-    api = create_api(config);
+    api = create_api(config, done);
   });
 
   afterEach(function() {
@@ -34,31 +34,31 @@ describe('api', function() {
     }
   });
 
-  describe('the / endpoint', function() {
+  describe('/ endpoint', function() {
     it('should list child endpoints', function(done){
       request(api).get('/')
         .expect(200, done);
     });
   });
 
-  describe('the /tlm endpoint', function() {
+  describe('/tlm endpoint', function() {
     it('should work', function(done){
       request(api).get('/tlm')
         .expect(200, done);
     });
   });
 
-  describe('the /raw endpoint', function() {
+  describe('/raw endpoint', function() {
     it('should list child endpoints', function(done){
       request(api).get('/raw')
         .expect(200, done);
     });
   });
 
-  describe('the /raw/tlm endpoint', function() {
+  describe('/raw/tlm endpoint', function() {
     var post_data;
 
-    beforeEach(function(){
+    beforeEach(function() {
       // reset post_data
       post_data = {
         imei: '000000000000000',
@@ -73,15 +73,19 @@ describe('api', function() {
       };
     });
 
-    it('should block POST requests from a bad source', function(done){
-      // create a server with raw_post_protected on
-      config.auth_enabled = true;
-      api = create_api(config);
+    describe('with auth enabled', function() {
+      beforeEach(function(done){
+        // create a server with raw_post_protected on
+        config.auth_enabled = true;
+        api = create_api(config, done);
+      });
 
-      // send request
-      request(api).post('/raw/tlm')
-        .send(post_data)
-        .expect(401, done);
+      it('should block POST requests from a bad source', function(done){
+        // send request
+        request(api).post('/raw/tlm')
+          .send(post_data)
+          .expect(401, done);
+      });
     });
 
     it('should block POST requests with a bad request format', function(done){
@@ -106,7 +110,7 @@ describe('api', function() {
     });
   });
 
-  describe('the /cmd endpoint', function() {
+  describe('/cmd endpoint', function() {
     // it('should block POST that fail RockSeven forwarding', function(done){
     //   // create a server with raw_post_protected on
     //   config.auth_enabled = true;

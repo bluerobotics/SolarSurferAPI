@@ -24,7 +24,6 @@ module.exports = function(api) {
   controllers.get_list = function(Model) {
     return function(req, res) {
 
-console.log('finding with', Model)
       Model.find(function(err, documents) {
         if(err) {
           if(api.config.debug) console.error(err);

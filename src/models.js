@@ -1,21 +1,33 @@
 'use strict';
 /* jslint node: true */
 
-module.exports = function(api) {
-  var db = api.db;
+// import
+var mongoose = require('mongoose');
+mongoose.models = {};
+mongoose.modelSchemas = {};
 
-  var models = {};
+var models = {};
 
-  models.Tlm = db.model('Tlm', new db.Schema({
-    name: 'string',
-    size: 'string'
-  }));
+models.Tlm = mongoose.model('RawTlm', new mongoose.Schema({
+  imei: 'string',
+  data: 'string',
+  ip: 'string'
+}));
 
-  models.Cmd = db.model('Cmd', new db.Schema({
-    name: 'string',
-    size: 'string'
-  }));
+models.Cmd = mongoose.model('RawCmd', new mongoose.Schema({
+  name: 'string',
+  size: 'string'
+}));
 
-  // actual module export
-  return models;
-};
+models.Tlm = mongoose.model('Tlm', new mongoose.Schema({
+  name: 'string',
+  size: 'string'
+}));
+
+models.Cmd = mongoose.model('Cmd', new mongoose.Schema({
+  name: 'string',
+  size: 'string'
+}));
+
+// actual module export
+module.exports = models;
