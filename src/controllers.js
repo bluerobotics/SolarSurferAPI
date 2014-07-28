@@ -42,13 +42,33 @@ module.exports = function(api) {
 
   controllers.get_list = function(Model) {
     return function(req, res) {
+      var where = req.query.where || {};
 
-      Model.find(function(err, documents) {
+      // first count the documents
+      Model.count(where, function(err, count) {
         if(err) {
-          if(api.config.debug) console.error(err);
-          res.json(400, {});
+          console.error(err);
+          res.json(400, err);
         }
-        else res.json(documents);
+        else {
+          var fields = null;
+          var options = {
+            skip: req.query.skip || 0,
+            limit: req.query.limit || 20
+          };
+
+          // then pull the documents
+          Model.find(where, fields, options, function(err, documents) {
+            if(err) {
+              console.error(err);
+              res.json(400, err);
+            }
+            else res.json({
+              items: documents,
+              meta: { skip: options.skip, limit: options.limit, count: count }
+            });
+          });
+        }
       });
 
     };

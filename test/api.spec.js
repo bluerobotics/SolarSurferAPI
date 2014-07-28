@@ -15,6 +15,7 @@ var config;
  
 describe('api', function() {
   var api;
+    var valid_raw_tlm_data;
 
   beforeEach(function(done) {
     // reset testing config
@@ -22,6 +23,19 @@ describe('api', function() {
     config.debug = false;
     config.logging = false;
     config.auth_enabled = false;
+
+    // reusable ata chunks
+    valid_raw_tlm_data = {
+      imei: '000000000000000',
+      device_type: 'ROCKBLOCK',
+      serial: '0000',
+      momsn: '0',
+      transmit_time: '14-06-23 02:23:50',
+      iridium_latitude: '33.8612',
+      iridium_longitude: '-118.3447',
+      iridium_cep: '3',
+      data: '48656c6c6f2c20776f726c6421'
+    };
 
     // make app
     api = create_api(config, done);
@@ -86,30 +100,13 @@ describe('api', function() {
   });
 
   describe('POST to the /raw/tlm endpoint', function() {
-    var post_data;
-
-    beforeEach(function() {
-      // reset post_data
-      post_data = {
-        imei: '000000000000000',
-        device_type: 'ROCKBLOCK',
-        serial: '0000',
-        momsn: '0',
-        transmit_time: '14-06-23 02:23:50',
-        iridium_latitude: '33.8612',
-        iridium_longitude: '-118.3447',
-        iridium_cep: '3',
-        data: '48656c6c6f2c20776f726c6421'
-      };
-    });
-
     it('should block requests with a bad request format', function(done){
       // mess up the request data
-      delete post_data.imei;
+      delete valid_raw_tlm_data.imei;
 
       // send request
       request(api).post('/raw/tlm')
-        .send(post_data)
+        .send(valid_raw_tlm_data)
         .expect(400, done);
     });
 
@@ -118,7 +115,7 @@ describe('api', function() {
 
         // verify that the db is empty
         function(callback){
-          api.models.RawTlm.count({}, function( err, count){
+          api.models.RawTlm.count({}, function(err, count){
             expect(count).to.equal(0);
             callback();
           });
@@ -127,13 +124,13 @@ describe('api', function() {
         // send request
         function(callback){
           request(api).post('/raw/tlm')
-            .send(post_data)
+            .send(valid_raw_tlm_data)
             .expect(200, callback);
         },
 
         // verify that a document has been added to the database
         function(callback){
-          api.models.RawTlm.count({}, function( err, count){
+          api.models.RawTlm.count({}, function(err, count){
             expect(count).to.equal(1);
             callback();
           });
@@ -150,8 +147,12 @@ describe('api', function() {
 
       // send request
       request(api).post('/raw/tlm')
-        .send(post_data)
+        .send(valid_raw_tlm_data)
         .expect(200, done);
+    });
+
+    it('should respond with a 200 even with an invalid Message', function(){
+      // if we don't do this, RockBlock will continuously try to resend
     });
 
     describe('with auth enabled', function() {
@@ -164,7 +165,7 @@ describe('api', function() {
       it('should block requests from a bad source', function(done){
         // send request
         request(api).post('/raw/tlm')
-          .send(post_data)
+          .send(valid_raw_tlm_data)
           .expect(401, done);
       });
     });
@@ -187,17 +188,33 @@ describe('api', function() {
   describe('GET to a collection endpoint', function() {
     // this covers the shared functionality across all collection endpoints
 
-    it('should return a list of documents', function(done){
-      request(api).get('/tlm')
+    it('should include an items attribute and a meta attribute', function(done){
+      request(api).get('/raw/tlm')
         .expect(200)
-        .expect({items:[],meta:{count:0}}, done);
+        .expect({items:[],meta:{count:0,skip:0,limit:20}}, done);
     });
 
-    // it('should return the total number of available documents', function(done){
-    //   request(api).get('/tlm')
-    //     .expect(200)
-    //     .expect({items:[],meta:{count:0}}, done);
-    // });
+    it('should return a list of documents', function(done){
+      async.series([
+
+        function(callback){
+          request(api).post('/raw/tlm')
+            .send(valid_raw_tlm_data)
+            .expect(200, callback);
+        },
+
+        // verify that a document is returned to us
+        function(callback){
+          request(api).get('/raw/tlm')
+            .expect(200)
+            .expect(function(res){
+              expect(res.body.items.length).to.equal(1);
+            })
+            .end(callback);
+        },
+
+      ], done);
+    });
 
     // it('should support a where parameter', function(done){
     //   request(api).get('/tlm')
