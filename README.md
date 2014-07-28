@@ -12,23 +12,27 @@ This is the data API for the BlueRobotic's SolarSurfer project. It offers SolarS
 
 This API is nominally available at [http://surfer.bluerobotics.com/](http://surfer.bluerobotics.com/). There are a few available endpoints:
 
-Endpoint | Schema | Valid Actions
---- | --- | ---
-`/cmd` | [list of cmd documents] | GET, POST
-`/cmd/_id` | {_id, _date, packets, data} | GET
-`/tlm` | [list of tlm documents] | GET
-`/tlm/_id` | {_id, _date, packets, data} | GET
-`/raw/cmd` | {} | GET
-`/raw/cmd/_id` | {} | GET
-`/raw/tlm` | {} | GET, POST
-`/raw/tlm/_id` | {} | GET
+Endpoint | Valid Actions
+--- | ---
+`/cmd` | GET, POST
+`/cmd/_id`| GET
+`/tlm`| GET
+`/tlm/_id` | GET
+`/raw/cmd` | GET
+`/raw/cmd/_id` | GET
+`/raw/tlm` | GET, POST
+`/raw/tlm/_id` | GET
 
 Most the time, users will only care about the non-raw endpoints as these contain the raw byte-streams to and from RockSeven. The two endpoints that support POST requests enforce authentication.
+
+### GET on a collection
 
 On the collection endpoints, the following query parameters are supported:
 
 * `?where={"mission":1}` - used to limit which documents get returned
-* `?projection={"mission":1}` - used to limit which fields get returned
+* `?fields={"mission":1}` - used to limit which fields get returned
+* `?limit=10` - used to limit the number of documents that get returned
+* `?skip=10` - used to control which group of documents are returned
 
 ## Development
 
