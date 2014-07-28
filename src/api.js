@@ -16,16 +16,20 @@ var create_api = function(config) {
 
   // set up server
   var api = express();
-  api.config = config;
   if(config.logging !== false) api.use(morgan('short'));
   api.use(bodyParser.urlencoded({extended: true}));
   api.use(bodyParser.json());
+  api.config = config;
 
   // set up database
   if(mongoose.connection.readyState != 1)
     mongoose.connect(config.mongo_uri);
   mongoose.connection.on('error', console.error);
-  api.mongoose = mongoose;
+  api.db = mongoose.connection;
+
+  // import models
+  var models = require('./models.js')(api);
+  api.models = models;
   
   // import controllers
   var controllers = require('./controllers.js')(api);
@@ -35,11 +39,11 @@ var create_api = function(config) {
   api.get('/raw', controllers.raw);
 
   // cmd routes
-  api.get('/cmd', controllers.get_list('cmd'));
+  api.get('/cmd', controllers.get_list(models.Cmd));
   api.post('/cmd', controllers.post_cmd);
 
   // tlm routes
-  api.get('/tlm', controllers.get_list('tlm'));
+  api.get('/tlm', controllers.get_list(models.Tlm));
   api.post('/raw/tlm', controllers.post_raw_tlm);
 
   return api;

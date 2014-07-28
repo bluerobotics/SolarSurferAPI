@@ -29,8 +29,8 @@ describe('api', function() {
   afterEach(function() {
     // clear the database
     var doNothing = function() {};
-    for(var i in api.mongoose.connection.collections) {
-      api.mongoose.connection.collections[i].remove(doNothing);
+    for(var i in api.db.collections) {
+      api.db.collections[i].remove(doNothing);
     }
   });
 
@@ -99,6 +99,10 @@ describe('api', function() {
       request(api).post('/raw/tlm')
         .send(post_data)
         .expect(200, done);
+    });
+
+    it('should insert a document into the raw_tlm collection', function(done){
+      done();
     });
   });
 

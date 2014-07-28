@@ -21,9 +21,18 @@ module.exports = function(api) {
     ]);
   };
 
-  controllers.get_list = function(collection) {
+  controllers.get_list = function(Model) {
     return function(req, res) {
-      res.json({'hello': 'world'});
+
+console.log('finding with', Model)
+      Model.find(function(err, documents) {
+        if(err) {
+          if(api.config.debug) console.error(err);
+          res.json(400, {});
+        }
+        else res.json(documents);
+      });
+
     };
   };
 
@@ -45,7 +54,7 @@ module.exports = function(api) {
       if(req._remoteAddress === undefined) res.json(401, {});
       else {
         dns.reverse(req._remoteAddress, function(err, domains){
-          if(domains.length < 1 || config.auth_whitelist.indexOf(domains[0]) >= 0)
+          if(domains.length < 1 || api.config.auth_whitelist.indexOf(domains[0]) >= 0)
             res.json(401, {});
           else dns_callback();
         });
@@ -55,6 +64,13 @@ module.exports = function(api) {
       // config says don't check dns, probably for testing
       dns_callback();
     }
+
+    // write to db
+    // var kitty = new Cat({ name: 'Zildjian' });
+    // kitty.save(function (err) {
+    //   if (err) // ...
+    //   console.log('meow');
+    // });
   };
 
   controllers.post_cmd = function(req, res) {
