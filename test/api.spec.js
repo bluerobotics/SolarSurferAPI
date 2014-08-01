@@ -34,7 +34,7 @@ describe('api', function() {
       iridium_latitude: '33.8612',
       iridium_longitude: '-118.3447',
       iridium_cep: '3',
-      data: '48656c6c6f2c20776f726c6421'
+      data: '010054686520536f6c617253757266657220697320676f696e6720746f204861776169692120486f706566756c6c792e8a40'
     };
 
     // make app
@@ -139,7 +139,33 @@ describe('api', function() {
       ], done);
     });
 
-    it('should add the decoded document to /tlm', function(){
+    it('should add the decoded document to /tlm', function(done){
+      async.series([
+
+        // verify that the db is empty
+        function(callback){
+          api.models.Tlm.count({}, function(err, count){
+            expect(count).to.equal(0);
+            callback();
+          });
+        },
+        
+        // send request
+        function(callback){
+          request(api).post('/raw/tlm')
+            .send(valid_raw_tlm_data)
+            .expect(200, callback);
+        },
+
+        // verify that a document has been added to the database
+        function(callback){
+          api.models.Tlm.count({}, function(err, count){
+            expect(count).to.equal(1);
+            callback();
+          });
+        },
+
+      ], done);
     });
 
     it('should respond with a 200 on success', function(done){
@@ -151,8 +177,35 @@ describe('api', function() {
         .expect(200, done);
     });
 
-    it('should respond with a 200 even with an invalid Message', function(){
+    it('should respond with a 200 even with an invalid Message', function(done){
       // if we don't do this, RockBlock will continuously try to resend
+      valid_raw_tlm_data.data = '48656c6c6f2c20776f726c6421'; // bare string, "hello world"
+      async.series([
+
+        // verify that the db is empty
+        function(callback){
+          api.models.Tlm.count({}, function(err, count){
+            expect(count).to.equal(0);
+            callback();
+          });
+        },
+        
+        // send request
+        function(callback){
+          request(api).post('/raw/tlm')
+            .send(valid_raw_tlm_data)
+            .expect(200, callback);
+        },
+
+        // verify that a document has been added to the database
+        function(callback){
+          api.models.Tlm.count({}, function(err, count){
+            expect(count).to.equal(0);
+            callback();
+          });
+        },
+
+      ], done);
     });
 
     describe('with auth enabled', function() {
