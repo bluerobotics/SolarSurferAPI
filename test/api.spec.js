@@ -7,8 +7,8 @@ var async = require('async');
 var request = require('supertest');
 var expect = require('expect.js');
 var _ = require('lodash');
-var create_api = require('src/api.js');
-var standard_config = require('src/config.js');
+var create_api = require('../src/api.js');
+var standard_config = require('../src/config.js');
 
 // common vars
 var config;

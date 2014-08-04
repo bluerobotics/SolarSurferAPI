@@ -37,6 +37,7 @@ var RawTlmSchema = new Schema({
 }, { strict: false });
 RawTlmSchema.post('save', function (doc) {
   // try to decode this message automatically
+  console.log('Decoding: ', doc.data);
   try {
     var decoded = Message.decode(doc.data);
     var tlm = new models.Tlm(doc.toObject());
@@ -45,6 +46,7 @@ RawTlmSchema.post('save', function (doc) {
   }
   catch(e) {
     // oh well, I guess we can't decode it...
+    console.log('Message decode error:', e);
   }
 });
 models.RawTlm = mongoose.model('RawTlm', RawTlmSchema);
