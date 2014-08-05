@@ -73,15 +73,18 @@ heroku run node
 
 This project uses [semantic versioning](http://semver.org/).
 
-### v0.0.0 - tbd
+### v0.1.0 - tbd
 
 * Initial release
 
 ## Todo
 
-* test database writing
-* test Message expanding / writing to non-raw
-* test POST and PUT white-listing
-* test cmd posting
-* test cmd forwarding
-* test mission and vehicle stuffs
+* add GET collection sorting
+* refactor auth to token secret string via an environment variable
+* create UI to view telem
+
+* add cmd POSTing and forward
+* create UI to send commands
+
+* add receiver and mission models
+
