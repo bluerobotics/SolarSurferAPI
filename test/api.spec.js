@@ -280,6 +280,12 @@ describe('api', function() {
     //     .expect(200)
     //     .expect({items:[],meta:{count:0}}, done);
     // });
+
+    // it('should support a sort parameter', function(done){
+    //   request(api).get('/tlm')
+    //     .expect(200)
+    //     .expect({items:[],meta:{count:0}}, done);
+    // });
   });
 
 });

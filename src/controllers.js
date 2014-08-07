@@ -54,7 +54,8 @@ module.exports = function(api) {
           var fields = null;
           var options = {
             skip: req.query.skip || 0,
-            limit: req.query.limit || 20
+            limit: req.query.limit || 20,
+            sort: req.query.sort || '-date'
           };
 
           // then pull the documents
