@@ -27,16 +27,18 @@ module.exports = function(api) {
 
   controllers.index = function(req, res) {
     res.json([
-      '/cmd',
+      '/command',
+      '/mission',
       '/raw',
-      '/tlm'
+      '/telemetry',
+      '/vehicle'
     ]);
   };
 
   controllers.raw = function(req, res) {
     res.json([
-      '/raw/cmd',
-      '/raw/tlm'
+      '/raw/command',
+      '/raw/telemetry'
     ]);
   };
 
@@ -66,7 +68,7 @@ module.exports = function(api) {
             }
             else res.json({
               items: documents,
-              meta: { skip: options.skip, limit: options.limit, count: count }
+              meta: { skip: options.skip, limit: options.limit, sort: options.sort, count: count }
             });
           });
         }
@@ -89,12 +91,12 @@ module.exports = function(api) {
         instance._ip = req._remoteAddress || 'localhost';
 
         // save the document
-        instance.save(function (err) {
-          if(err) return res.json(400, err);
-          Model.findById(instance, function (err, doc) {
-            if(err) return res.json(500, {'error': err});
-            else return res.json(success_code || 201, doc);
-          });
+        instance.save(function(err, doc) {
+          if(err) {
+            console.error(err);
+            return res.json(400, err);
+          }
+          else return res.json(success_code || 201, doc);
         });
 
       });

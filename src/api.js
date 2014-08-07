@@ -40,15 +40,21 @@ var create_api = function(config, callback) {
       api.get('', controllers.index);
       api.get('/raw', controllers.raw);
 
+      // mission routes
+      api.get('/mission', controllers.get_list(models.Mission));
+      api.post('/mission', controllers.post(models.Mission));
+      api.get('/vehicle', controllers.get_list(models.Vehicle));
+      api.post('/vehicle', controllers.post(models.Vehicle));
+
       // cmd routes
-      api.get('/cmd', controllers.get_list(models.Cmd));
-      api.post('/cmd', controllers.post(models.Cmd));
-      api.get('/raw/cmd', controllers.get_list(models.RawCmd));
+      api.get('/command', controllers.get_list(models.Cmd));
+      api.post('/command', controllers.post(models.Cmd));
+      api.get('/raw/command', controllers.get_list(models.RawCmd));
 
       // tlm routes
-      api.get('/tlm', controllers.get_list(models.Tlm));
-      api.get('/raw/tlm', controllers.get_list(models.RawTlm));
-      api.post('/raw/tlm', controllers.post(models.RawTlm, 200));
+      api.get('/telemetry', controllers.get_list(models.Tlm));
+      api.get('/raw/telemetry', controllers.get_list(models.RawTlm));
+      api.post('/raw/telemetry', controllers.post(models.RawTlm, 200));
 
       // api build is complete!
       if(callback) callback();

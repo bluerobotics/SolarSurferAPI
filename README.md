@@ -1,6 +1,6 @@
 [![Build Status](https://travis-ci.org/bluerobotics/SolarSurferAPI.svg?branch=master)](https://travis-ci.org/bluerobotics/SolarSurferAPI)
 
-# ArchitectJS
+# SolarSurferAPI
 
 Data API for the [SolarSurfer](http://bluerobotics.com/) project.
 
@@ -73,18 +73,14 @@ heroku run node
 
 This project uses [semantic versioning](http://semver.org/).
 
-### v0.1.0 - tbd
+### v0.1.0 - 2014/08/08
 
 * Initial release
 
 ## Todo
 
-* add GET collection sorting
-* refactor auth to token secret string via an environment variable
 * create UI to view telem
 
+* refactor auth to token secret string via an environment variable
 * add cmd POSTing and forward
 * create UI to send commands
-
-* add receiver and mission models
-
