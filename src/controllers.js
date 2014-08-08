@@ -53,7 +53,7 @@ module.exports = function(api) {
           res.json(400, err);
         }
         else {
-          var fields = null;
+          var fields = req.query.fields || null;
           var options = {
             skip: req.query.skip || 0,
             limit: req.query.limit || 20,
