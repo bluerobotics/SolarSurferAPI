@@ -13,25 +13,26 @@ Message.loadConfigFile();
 console.log('Message format version:', Message.version);
 
 var models = {};
+var schemaOptions = { strict: false, versionKey: '_etag' };
 
 models.Cmd = mongoose.model('Cmd', new Schema({
-}));
+}, schemaOptions));
 
 models.RawCmd = mongoose.model('RawCmd', new Schema({
-}));
+}, schemaOptions));
 
 // Vehicle
 models.Vehicle = mongoose.model('Vehicle', new Schema({
   name:     {type: String, default: 'Vehicle', required: true},
   imei:     {type: String, required: true}, // International Mobile Equipment Identity
   current_mission: {type: Schema.Types.ObjectId},
-}, { strict: false }));
+}, schemaOptions));
 
 // Mission
 models.Mission = mongoose.model('Mission', new Schema({
   name:     {type: String, default: 'Mission', required: true},
   vehicle:  {type: Schema.Types.ObjectId, required: true},
-}, { strict: false }));
+}, schemaOptions));
 
 // Tlm
 models.Tlm = mongoose.model('Tlm', new Schema({
@@ -40,7 +41,7 @@ models.Tlm = mongoose.model('Tlm', new Schema({
   imei:     {type: String, required: true}, // International Mobile Equipment Identity
   mission:  {type: Schema.Types.ObjectId, required: true},
   data:     {type: Schema.Types.Mixed, required: true},
-}, { strict: false }));
+}, schemaOptions));
 
 // Raw Tlm
 var RawTlmSchema = new Schema({
@@ -49,7 +50,7 @@ var RawTlmSchema = new Schema({
   imei:     {type: String, required: true}, // International Mobile Equipment Identity
   mission:  {type: Schema.Types.ObjectId, required: true},
   data:     {type: String, required: true},
-}, { strict: false });
+}, schemaOptions);
 RawTlmSchema.pre('validate', function (next) {
   var raw_tlm = this;
 
