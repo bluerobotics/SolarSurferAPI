@@ -14,16 +14,20 @@ This API is nominally available at [http://surfer.bluerobotics.com/](http://surf
 
 Endpoint | Valid Actions
 --- | ---
-`/cmd` | GET, POST
-`/cmd/_id`| GET
-`/tlm`| GET
-`/tlm/_id` | GET
-`/raw/cmd` | GET
-`/raw/cmd/_id` | GET
-`/raw/tlm` | GET, POST
-`/raw/tlm/_id` | GET
+`/command` | GET, POST
+`/command/_id`| GET
+`/mission` | GET, POST
+`/mission/_id`| GET, PUT
+`/raw/command` | GET
+`/raw/command/_id` | GET
+`/raw/telemetry` | GET, POST
+`/raw/telemetry/_id` | GET
+`/telemetry`| GET
+`/telemetry/_id` | GET
+`/vehicle` | GET, POST
+`/vehicle/_id`| GET, PUT
 
-Most the time, users will only care about the non-raw endpoints as these contain the raw byte-streams to and from RockSeven. The two endpoints that support POST requests enforce authentication.
+Most the time, users will only care about the non-raw endpoints as these contain the raw byte-streams to and from RockSeven. All POST and PUT requests require the correct `?token=` to be passed in the query string.
 
 ### GET on a collection
 
@@ -76,11 +80,9 @@ This project uses [semantic versioning](http://semver.org/).
 ### v0.1.0 - 2014/08/08
 
 * Initial release
+* Used for Santa Monica Canyon testing
 
 ## Todo
 
-* create UI to view telem
-
 * refactor auth to token secret string via an environment variable
-* add cmd POSTing and forward
-* create UI to send commands
+* add cmd POSTing and forwarding
