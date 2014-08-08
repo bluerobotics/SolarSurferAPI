@@ -44,7 +44,11 @@ module.exports = function(api) {
 
   controllers.get_list = function(Model) {
     return function(req, res) {
-      var where = req.query.where || {};
+      var where = {};
+      try {
+        where = JSON.parse(req.query.where);
+      }
+      catch(e) {}
 
       // first count the documents
       Model.count(where, function(err, count) {
