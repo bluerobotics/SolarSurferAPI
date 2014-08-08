@@ -6,6 +6,7 @@ var express = require('express');
 var morgan = require('morgan');
 var bodyParser = require('body-parser');
 var mongoose = require('mongoose');
+var cors = require('cors');
 
 // api factory function
 var create_api = function(config, callback) {
@@ -19,6 +20,7 @@ var create_api = function(config, callback) {
   if(config.logging !== false) api.use(morgan('short'));
   api.use(bodyParser.urlencoded({extended: true}));
   api.use(bodyParser.json());
+  api.use(cors());
   api.config = config;
 
   // set up database
