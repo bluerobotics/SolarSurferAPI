@@ -35,6 +35,7 @@ On the collection endpoints, the following query parameters are supported:
 
 * `?where={"mission":1}` - used to limit which documents get returned
 * `?fields={"mission":1}` - used to limit which fields get returned
+* `?sort=-_date` - used to sort the documents before being returned
 * `?limit=10` - used to limit the number of documents that get returned
 * `?skip=10` - used to control which group of documents are returned
 

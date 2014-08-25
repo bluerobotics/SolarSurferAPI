@@ -5,7 +5,8 @@
 // import
 var async = require('async');
 var request = require('supertest');
-var expect = require('expect.js');
+var chai = require('chai');
+var expect = chai.expect;
 var _ = require('lodash');
 var create_api = require('../src/api.js');
 var standard_config = require('../src/config.js');
@@ -25,7 +26,7 @@ var verify_count = function(model, expected_count) {
  
 describe('api', function() {
   var api;
-    var valid_raw_tlm_data;
+  var valid_raw_tlm_data;
 
   beforeEach(function(done) {
     // reset testing config
@@ -392,51 +393,166 @@ describe('api', function() {
   describe('GET to a collection endpoint', function() {
     // this covers the shared functionality across all collection endpoints
 
-    it('should include an items attribute and a meta attribute', function(done){
-      request(api).get('/raw/telemetry')
-        .expect(200)
-        .expect({items:[],meta:{count:0,skip:0,limit:20,sort:'_date'}}, done);
+    beforeEach(function(done){
+      // create some data on the server
+      async.series([
+        function(callback){
+          request(api).post('/raw/telemetry')
+            .send(valid_raw_tlm_data)
+            .expect(200, callback);
+        },
+
+        function(callback){
+          valid_raw_tlm_data.data = '01004920616d206120646966666572656e7420737472696e6720666f72204861776169692120486f706566756c6c792ef971';
+          valid_raw_tlm_data.serial = '0001';
+          request(api).post('/raw/telemetry')
+            .send(valid_raw_tlm_data)
+            .expect(200, callback);
+        },
+      ], done);
     });
 
-    // it('should return a list of documents', function(done){
-    //   async.series([
+    it('should include a list of documents', function(done){
+      request(api).get('/raw/telemetry')
+        .expect(200)
+        .expect(function(res){
+          expect(res.body.items.length).to.equal(2);
+        })
+        .end(done);
+    });
 
-    //     function(callback){
-    //       request(api).post('/raw/telemetry')
-    //         .send(valid_raw_tlm_data)
-    //         .expect(200, callback);
-    //     },
+    it('should include meta attributes', function(done){
+      request(api).get('/raw/telemetry')
+        .expect(200)
+        .expect(function(res){
+          expect(res.body.meta).to.deep.equal({count:2,skip:0,limit:20,sort:'_date'});
+        })
+        .end(done);
+    });
 
-    //     // verify that a document is returned to us
-    //     function(callback){
-    //       request(api).get('/raw/telemetry')
-    //         .expect(200)
-    //         .expect(function(res){
-    //           expect(res.body.items.length).to.equal(1);
-    //         })
-    //         .end(callback);
-    //     },
+    it('should support a where parameter', function(done){
+      async.series([
+        // make sure that are two documents in the DB
+        function(callback){
+          request(api).get('/telemetry?where={}')
+            .expect(200)
+            .expect(function(res){
+              expect(res.body.items.length).to.equal(2);
+            })
+            .end(callback);
+        },
 
-    //   ], done);
-    // });
+        // make sure that filtering returns the correct subset
+        function(callback){
+          request(api).get('/telemetry?where={"serial":"0001"}')
+            .expect(200)
+            .expect(function(res){
+              expect(res.body.items.length).to.equal(1);
+            })
+            .end(callback);
+        },
+      ], done);
+    });
 
-    // it('should support a where parameter', function(done){
-    //   request(api).get('/telemetry')
-    //     .expect(200)
-    //     .expect({items:[],meta:{count:0}}, done);
-    // });
+    it('should support a fields parameter', function(done){
+      async.series([
+        // make sure that all fields are included by default
+        function(callback){
+          request(api).get('/telemetry')
+            .expect(200)
+            .expect(function(res){
+              expect(res.body.items.length).to.equal(2);
+              expect(res.body.items[0].mission).to.not.equal(undefined);
+            })
+            .end(callback);
+        },
 
-    // it('should support a limit parameter', function(done){
-    //   request(api).get('/telemetry')
-    //     .expect(200)
-    //     .expect({items:[],meta:{count:0}}, done);
-    // });
+        // verify that a subset of fields have been returned
+        function(callback){
+          request(api).get('/telemetry?fields={"serial":1}')
+            .expect(200)
+            .expect(function(res){
+              expect(res.body.items.length).to.equal(2);
+              expect(res.body.items[0].mission).to.equal(undefined);
+            })
+            .end(callback);
+        },
+      ], done);
+    });
 
-    // it('should support a sort parameter', function(done){
-    //   request(api).get('/telemetry')
-    //     .expect(200)
-    //     .expect({items:[],meta:{count:0}}, done);
-    // });
+    it('should support a sort parameter', function(done){
+      async.series([
+        // sort one way
+        function(callback){
+          request(api).get('/telemetry?sort=+serial')
+            .expect(200)
+            .expect(function(res){
+              expect(res.body.items.length).to.equal(2);
+              expect(res.body.items[0].serial).to.equal('0000');
+            })
+            .end(callback);
+        },
+
+        // sort the other way
+        function(callback){
+          request(api).get('/telemetry?sort=-serial')
+            .expect(200)
+            .expect(function(res){
+              expect(res.body.items.length).to.equal(2);
+              expect(res.body.items[0].serial).to.equal('0001');
+            })
+            .end(callback);
+        },
+      ], done);
+    });
+
+    it('should support a limit parameter', function(done){
+      async.series([
+        // return many documents by default
+        function(callback){
+          request(api).get('/telemetry')
+            .expect(200)
+            .expect(function(res){
+              expect(res.body.items.length).to.equal(2);
+            })
+            .end(callback);
+        },
+
+        // make sure that filtering returns the correct subset
+        function(callback){
+          request(api).get('/telemetry?limit=1')
+            .expect(200)
+            .expect(function(res){
+              expect(res.body.items.length).to.equal(1);
+            })
+            .end(callback);
+        },
+      ], done);
+    });
+
+    it('should support a skip parameter', function(done){
+      async.series([
+        // return many documents by default
+        function(callback){
+          request(api).get('/telemetry')
+            .expect(200)
+            .expect(function(res){
+              expect(res.body.items.length).to.equal(2);
+            })
+            .end(callback);
+        },
+
+        // make sure that filtering returns the correct subset
+        function(callback){
+          request(api).get('/telemetry?skip=1')
+            .expect(200)
+            .expect(function(res){
+              expect(res.body.items.length).to.equal(1);
+            })
+            .end(callback);
+        },
+      ], done);
+    });
   });
 
 });
