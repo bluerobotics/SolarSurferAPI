@@ -13,6 +13,7 @@ var create_api = function(config, callback) {
   // override config with environment variables
   config.port = Number(process.env.PORT || config.port);
   config.mongo_uri = process.env.MONGOLAB_URI || config.mongo_uri;
+  config.auth_token = process.env.AUTH_TOKEN || config.auth_token;
   if(config.logging) console.log('Using config:', config);
 
   // set up server

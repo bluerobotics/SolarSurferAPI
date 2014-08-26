@@ -33,7 +33,7 @@ describe('api', function() {
     config = _.clone(standard_config, true);
     config.debug = false;
     config.logging = false;
-    config.auth_enabled = false;
+    config.auth_token = undefined;
 
     // reusable ata chunks
     valid_raw_tlm_data = {
@@ -68,39 +68,39 @@ describe('api', function() {
   });
 
   describe('POST to the /command endpoint', function() {
-    it('should block requests with a bad request format', function(){
-    });
+    // it('should block requests with a bad request format', function(){
+    // });
 
-    it('should add document to /command', function(){
-    });
+    // it('should add document to /command', function(){
+    // });
 
-    it('should add the encoded document to /raw/command', function(){
-    });
+    // it('should add the encoded document to /raw/command', function(){
+    // });
 
-    it('should forward an encoded message to RockSeven', function(){
-    });
+    // it('should forward an encoded message to RockSeven', function(){
+    // });
 
-    it('should return the response code from RockSeven forwarding', function(done){
-      // send request
-      request(api).post('/command')
-        .send({})
-        .expect(201, done);
-    });
+    // it('should return the response code from RockSeven forwarding', function(done){
+    //   // send request
+    //   request(api).post('/command')
+    //     .send({})
+    //     .expect(201, done);
+    // });
 
-    describe('with auth enabled', function() {
-      beforeEach(function(done){
-        // create a server with raw_post_protected on
-        config.auth_enabled = true;
-        api = create_api(config, done);
-      });
+    // describe('with auth enabled', function() {
+    //   beforeEach(function(done){
+    //     // create a server with raw_post_protected on
+    //     config.auth_token = 'token';
+    //     api = create_api(config, done);
+    //   });
 
-      it('should block requests from a bad source', function(){
-        // // send request
-        // request(api).post('/raw/command')
-        //   .send({})
-        //   .expect(400, done);
-      });
-    });
+    //   it('should block requests from a bad source', function(){
+    //     // // send request
+    //     // request(api).post('/raw/command')
+    //     //   .send({})
+    //     //   .expect(400, done);
+    //   });
+    // });
   });
 
   describe('GET to the /raw endpoint', function() {
@@ -332,7 +332,7 @@ describe('api', function() {
     describe('with auth enabled', function() {
       beforeEach(function(done){
         // create a server with raw_post_protected on
-        config.auth_enabled = true;
+        config.auth_token = 'token';
         api = create_api(config, done);
       });
 

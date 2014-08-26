@@ -78,12 +78,13 @@ heroku run node
 
 This project uses [semantic versioning](http://semver.org/).
 
+### v0.2.0 - 2014/??/??
+
+* Added GET parameter test cases for where, fields, sort, limit, and skip
+* Refactored auth to token secret string via an environment variable
+* TODO: Added command POSTing and forwarding
+
 ### v0.1.0 - 2014/08/08
 
 * Initial release
 * Used for Santa Monica Canyon testing
-
-## Todo
-
-* refactor auth to token secret string via an environment variable
-* add cmd POSTing and forwarding
