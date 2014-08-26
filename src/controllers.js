@@ -7,25 +7,8 @@ module.exports = function(api) {
   var controllers = {};
 
   var check_auth = function(req, res, callback) {
-    // make sure this is from RockSeven...
-    // auth_whitelist: ['rock7mobile.com'],
-    // if(api.config.auth_enabled !== false) {
-    //   if(req._remoteAddress === undefined) res.json(401, {});
-    //   else {
-    //     dns.reverse(req._remoteAddress, function(err, domains){
-    //       if(api.config.logging) console.log('Request from:', domains);
-    //       if(domains.length < 1 || api.config.auth_whitelist.indexOf(domains[0]) >= 0)
-    //         res.json(401, {});
-    //       else callback();
-    //     });
-    //   }
-    // }
-    // else {
-    //   // config says don't check dns, probably for testing
-    //   callback();
-    // }
     if(api.config.auth_token === false || api.config.auth_token === undefined) {
-      // config says don't check dns, probably for testing
+      // config says don't check auth, probably for testing
       callback();
     }
     else if(req.query.token === api.config.auth_token) {

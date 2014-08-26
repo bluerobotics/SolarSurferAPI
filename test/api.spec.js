@@ -336,11 +336,18 @@ describe('api', function() {
         api = create_api(config, done);
       });
 
-      it('should block requests from a bad source', function(done){
+      it('should block requests with a bad token', function(done){
         // send request
         request(api).post('/raw/telemetry')
           .send(valid_raw_tlm_data)
           .expect(401, done);
+      });
+
+      it('should accept requests from a good token', function(done){
+        // send request
+        request(api).post('/raw/telemetry?token=token')
+          .send(valid_raw_tlm_data)
+          .expect(200, done);
       });
     });
   });
