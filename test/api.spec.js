@@ -27,6 +27,7 @@ var verify_count = function(model, expected_count) {
 describe('api', function() {
   var api;
   var valid_raw_tlm_data;
+  var valid_cmd_data;
 
   beforeEach(function(done) {
     // reset testing config
@@ -46,6 +47,14 @@ describe('api', function() {
       iridium_longitude: '-118.3447',
       iridium_cep: '3',
       data: '010054686520536f6c617253757266657220697320676f696e6720746f204861776169692120486f706566756c6c792ef785'
+    };
+    valid_cmd_data = {
+      mission: '',
+      data: {
+        _version: 1,
+        _format: 0,
+        message: 'The SolarSurfer is going to Hawaii! Hopefully.'
+      }
     };
 
     // make app
@@ -68,14 +77,112 @@ describe('api', function() {
   });
 
   describe('POST to the /command endpoint', function() {
-    // it('should block requests with a bad request format', function(){
-    // });
+    var vehicle, mission;
 
-    // it('should add document to /command', function(){
-    // });
+    beforeEach(function(done){
+      async.series([
+        
+        // create vehicle
+        function(callback){
+          vehicle = new api.models.Vehicle({imei: valid_raw_tlm_data.imei});
+          vehicle.save(function(err, vehicle) {
+            callback();
+          });
+        },
+        
+        // create mission
+        function(callback){
+          mission = new api.models.Mission({vehicle: vehicle._id});
+          mission.save(function(err, mission) {
+            valid_cmd_data.mission = mission._id;
+            callback();
+          });
+        },
 
-    // it('should add the encoded document to /raw/command', function(){
-    // });
+        // verify new content
+        verify_count(api.models.Vehicle, 1),
+        verify_count(api.models.Mission, 1),
+
+      ], done);
+    });
+
+    it('should block requests with a bad request format', function(done){
+      // mess up the request data
+      delete valid_cmd_data.data;
+
+      // send request
+      request(api).post('/command')
+        .send(valid_cmd_data)
+        .expect(400, done);
+    });
+
+    it('should block requests with a non-existent mission', function(done){
+      // mess up the request mission
+      valid_cmd_data.mission = '012345678901234567890123';
+
+      // send request
+      request(api).post('/command')
+        .send(valid_cmd_data)
+        .expect(400, done);
+    });
+
+    it('should add document to /command', function(done){
+      async.series([
+
+        // verify that the db is empty
+        function(callback){
+          api.models.Cmd.count({}, function(err, count){
+            expect(count).to.equal(0);
+            callback();
+          });
+        },
+        
+        // send request
+        function(callback){
+          request(api).post('/command')
+            .send(valid_cmd_data)
+            .expect(201, callback);
+        },
+
+        // verify that a document has been added to the database
+        function(callback){
+          api.models.Cmd.count({}, function(err, count){
+            expect(count).to.equal(1);
+            callback();
+          });
+        },
+
+      ], done);
+    });
+
+    it('should add the encoded document to /raw/command', function(done){
+      async.series([
+
+        // verify that the db is empty
+        function(callback){
+          api.models.RawCmd.count({}, function(err, count){
+            expect(count).to.equal(0);
+            callback();
+          });
+        },
+        
+        // send request
+        function(callback){
+          request(api).post('/command')
+            .send(valid_cmd_data)
+            .expect(201, callback);
+        },
+
+        // verify that a document has been added to the database
+        function(callback){
+          api.models.RawCmd.count({}, function(err, count){
+            expect(count).to.equal(1);
+            callback();
+          });
+        },
+
+      ], done);
+    });
 
     // it('should forward an encoded message to RockSeven', function(){
     // });
@@ -87,20 +194,27 @@ describe('api', function() {
     //     .expect(201, done);
     // });
 
-    // describe('with auth enabled', function() {
-    //   beforeEach(function(done){
-    //     // create a server with raw_post_protected on
-    //     config.auth_token = 'token';
-    //     api = create_api(config, done);
-    //   });
+    describe('with auth enabled', function() {
+      beforeEach(function(done){
+        // create a server with raw_post_protected on
+        config.auth_token = 'token';
+        api = create_api(config, done);
+      });
 
-    //   it('should block requests from a bad source', function(){
-    //     // // send request
-    //     // request(api).post('/raw/command')
-    //     //   .send({})
-    //     //   .expect(400, done);
-    //   });
-    // });
+      it('should block requests with a bad token', function(done){
+        // send request
+        request(api).post('/command')
+          .send(valid_cmd_data)
+          .expect(401, done);
+      });
+
+      it('should accept requests from a good token', function(done){
+        // send request
+        request(api).post('/command?token=token')
+          .send(valid_cmd_data)
+          .expect(201, done);
+      });
+    });
   });
 
   describe('GET to the /raw endpoint', function() {

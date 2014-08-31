@@ -3,6 +3,7 @@
 
 // import
 var mongoose = require('mongoose'),
+    idvalidator = require('mongoose-id-validator'),
     Schema = mongoose.Schema;
 mongoose.models = {};
 mongoose.modelSchemas = {};
@@ -15,42 +16,69 @@ console.log('Message format version:', Message.version);
 var models = {};
 var schemaOptions = { strict: false, versionKey: '_etag' };
 
-models.Cmd = mongoose.model('Cmd', new Schema({
-}, schemaOptions));
+var CmdSchema = new Schema({
+  _date:    {type: Date, default: Date.now(), required: true},
+  _ip:      {type: String, required: true},
+  mission:  {type: Schema.Types.ObjectId, ref: 'Mission', required: true},
+  data:     {type: Schema.Types.Mixed, required: true},
+}, schemaOptions).plugin(idvalidator);
+CmdSchema.post('save', function (doc) {
+  // try to encoding this message automatically
+  console.log('Encoding: ', doc.data);
+  try {
+    var encoded = Message.encode(doc.data);
+    var rawcmd = new models.RawCmd(doc.toObject());
+    rawcmd.data = encoded;
+    rawcmd.imei = 'fake'
+    // delete tlm._id;
+    // console.log(tlm)
+    rawcmd.save();
+  }
+  catch(e) {
+    // oh well, I guess we can't encode it...
+    console.log('Message encode error:', e);
+  }
+});
+models.Cmd = mongoose.model('Cmd', CmdSchema);
 
 models.RawCmd = mongoose.model('RawCmd', new Schema({
-}, schemaOptions));
+  _date:    {type: Date, default: Date.now(), required: true},
+  _ip:      {type: String, required: true},
+  imei:     {type: String, required: true}, // International Mobile Equipment Identity
+  mission:  {type: Schema.Types.ObjectId, ref: 'Mission', required: true},
+  data:     {type: String, required: true},
+}, schemaOptions)); //.plugin(idvalidator)
 
 // Vehicle
 models.Vehicle = mongoose.model('Vehicle', new Schema({
   name:     {type: String, default: 'Vehicle', required: true},
   imei:     {type: String, required: true}, // International Mobile Equipment Identity
-  current_mission: {type: Schema.Types.ObjectId},
-}, schemaOptions));
+  current_mission: {type: Schema.Types.ObjectId, ref: 'Mission'},
+}, schemaOptions).plugin(idvalidator));
 
 // Mission
 models.Mission = mongoose.model('Mission', new Schema({
   name:     {type: String, default: 'Mission', required: true},
-  vehicle:  {type: Schema.Types.ObjectId, required: true},
-}, schemaOptions));
+  vehicle:  {type: Schema.Types.ObjectId, ref: 'Vehicle', required: true},
+}, schemaOptions).plugin(idvalidator));
 
 // Tlm
 models.Tlm = mongoose.model('Tlm', new Schema({
   _date:    {type: Date, default: Date.now(), required: true},
   _ip:      {type: String, required: true},
   imei:     {type: String, required: true}, // International Mobile Equipment Identity
-  mission:  {type: Schema.Types.ObjectId, required: true},
+  mission:  {type: Schema.Types.ObjectId, ref: 'Mission', required: true},
   data:     {type: Schema.Types.Mixed, required: true},
-}, schemaOptions));
+}, schemaOptions)); //.plugin(idvalidator)
 
 // Raw Tlm
 var RawTlmSchema = new Schema({
   _date:    {type: Date, default: Date.now(), required: true},
   _ip:      {type: String, required: true},
   imei:     {type: String, required: true}, // International Mobile Equipment Identity
-  mission:  {type: Schema.Types.ObjectId, required: true},
+  mission:  {type: Schema.Types.ObjectId, ref: 'Mission', required: true},
   data:     {type: String, required: true},
-}, schemaOptions);
+}, schemaOptions).plugin(idvalidator);
 RawTlmSchema.pre('validate', function (next) {
   var raw_tlm = this;
 
@@ -113,6 +141,8 @@ RawTlmSchema.post('save', function (doc) {
     var decoded = Message.decode(doc.data);
     var tlm = new models.Tlm(doc.toObject());
     tlm.data = decoded;
+    // delete tlm._id;
+    // console.log(tlm)
     tlm.save();
   }
   catch(e) {
