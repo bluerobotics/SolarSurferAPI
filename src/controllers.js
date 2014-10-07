@@ -112,6 +112,7 @@ module.exports = function(api) {
       check_auth(req, res, function(){
 
         // search for previous document
+        if(req.body._id !== undefined) delete req.body._id;
         Model.findOneAndUpdate({_id: req.params._id}, req.body, function (err, doc) {
           if(err) {
             console.error(err);
