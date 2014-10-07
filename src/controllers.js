@@ -119,11 +119,11 @@ module.exports = function(api) {
           // we found the document! let's update it
           var original_date = instance._date || Date.now();
           var original_ip = instance._ip || req._remoteAddress || 'localhost';
+          if(req.body._id !== undefined) delete req.body._id;
           // TODO: this is technically PATCHing and not PUTing....
           instance._doc = _.assign(req.body, instance._doc);
 
           // force these parameters
-          instance._id = req.params._id;
           instance._date = original_date;
           instance._ip = original_ip;
 
