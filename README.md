@@ -6,9 +6,13 @@ Data API for the [SolarSurfer](http://bluerobotics.com/) project.
 
 ## Overview
 
-This is the data API for the BlueRobotic's SolarSurfer project. It offers SolarSurfer command and telemetry history over a RESTful HTTP interface. This service is nominally located at [](http://data.bluerobotics.com/) and [http://solarsurfer.herokuapp.com/](http://solarsurfer.herokuapp.com/).
+This is the data API for the BlueRobotic's SolarSurfer project. It offers SolarSurfer command and telemetry history over a RESTful HTTP interface. This service is nominally located at [http://data.bluerobotics.com/](http://data.bluerobotics.com/) and [http://solarsurfer.herokuapp.com/](http://solarsurfer.herokuapp.com/).
 
-## API
+## Usage
+
+The API is capable of storing telemetry for multiple simultaneous vehicles. All incoming data is assigned a vehicle and a mission by the `imei` located in the incoming telemetry message. The `imei` (or International Mobile Station Equipment Identity) is a unique number assigned to each modem. When a new piece of data arrives, the API first tries to determine is there is a vehicle in the database with a matching `imei`. If there is a not, a new vehicle is created. Next, the API looks for an active mission assigned to that vehicle. If one does not exist, a new mission is created. That piece of data is then saved in the database against that mission.
+
+### API
 
 This API is nominally available at [http://surfer.bluerobotics.com/](http://surfer.bluerobotics.com/). There are a few available endpoints:
 
@@ -78,7 +82,7 @@ heroku run node
 
 This project uses [semantic versioning](http://semver.org/).
 
-### v0.2.0 - 2014/??/??
+### v0.2.0 - 2014/08/??
 
 * Added GET parameter test cases for where, fields, sort, limit, and skip
 * Refactored auth to token secret string via an environment variable

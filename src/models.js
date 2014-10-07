@@ -2,6 +2,7 @@
 /* jslint node: true */
 
 // import
+var request = require('request');
 var mongoose = require('mongoose'),
     idvalidator = require('mongoose-id-validator'),
     Schema = mongoose.Schema;
@@ -29,6 +30,9 @@ CmdSchema.post('save', function (doc) {
     var encoded = Message.encode(doc.data);
     var rawcmd = new models.RawCmd(doc.toObject());
     rawcmd.data = encoded;
+
+    // fetch the imei from the mission's vehicle
+    // console.log('RAWCMD', rawcmd.mission)
     rawcmd.imei = 'fake'
     // delete tlm._id;
     // console.log(tlm)
@@ -51,6 +55,8 @@ models.RawCmd = mongoose.model('RawCmd', new Schema({
 
 // Vehicle
 models.Vehicle = mongoose.model('Vehicle', new Schema({
+  _date:    {type: Date, default: Date.now(), required: true},
+  _ip:      {type: String, required: true},
   name:     {type: String, default: 'Vehicle', required: true},
   imei:     {type: String, required: true}, // International Mobile Equipment Identity
   current_mission: {type: Schema.Types.ObjectId, ref: 'Mission'},
@@ -58,6 +64,8 @@ models.Vehicle = mongoose.model('Vehicle', new Schema({
 
 // Mission
 models.Mission = mongoose.model('Mission', new Schema({
+  _date:    {type: Date, default: Date.now(), required: true},
+  _ip:      {type: String, required: true},
   name:     {type: String, default: 'Mission', required: true},
   vehicle:  {type: Schema.Types.ObjectId, ref: 'Vehicle', required: true},
 }, schemaOptions).plugin(idvalidator));
@@ -82,7 +90,7 @@ var RawTlmSchema = new Schema({
 RawTlmSchema.pre('validate', function (next) {
   var raw_tlm = this;
 
-  // need imei to continue, validation with through an error later if needed
+  // need imei to continue, validation with throw an error later if needed
   if(raw_tlm.imei === undefined) next();
 
   // determine which mission this telemetry belongs to
@@ -96,7 +104,11 @@ RawTlmSchema.pre('validate', function (next) {
       }
       else {
         // looks like we need to create a mission
-        var mission = new models.Mission({vehicle: vehicle._id});
+        var mission = new models.Mission({
+          _date: raw_tlm._date,
+          _ip: raw_tlm._ip,
+          vehicle: vehicle._id
+        });
         mission.save(function(err, doc) {
           if(err) {
             console.error('Unable to auto-create mission', err);
@@ -122,7 +134,12 @@ RawTlmSchema.pre('validate', function (next) {
       if(vehicle !== undefined && vehicle !== null) vehicle_callback(vehicle);
       else {
         // looks like we need to create a vehicle
-        vehicle = new models.Vehicle({name: raw_tlm.imei, imei: raw_tlm.imei});
+        vehicle = new models.Vehicle({
+          _date: raw_tlm._date,
+          _ip: raw_tlm._ip,
+          name: raw_tlm.imei,
+          imei: raw_tlm.imei
+        });
         vehicle.save(function(err, doc) {
           if(err) {
             console.error('Unable to auto-create vehicle', err);

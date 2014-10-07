@@ -2,6 +2,7 @@
 /* jslint node: true */
 
 var dns = require('dns');
+var _ = require('lodash');
 
 module.exports = function(api) {
   var controllers = {};
@@ -77,7 +78,7 @@ module.exports = function(api) {
     };
   };
 
-  controllers.post = function(Model, success_code) {
+  controllers.post = function(Model, success_code_override) {
     return function(req, res) {
 
       // check auth
@@ -96,7 +97,40 @@ module.exports = function(api) {
             console.error(err);
             return res.json(400, err);
           }
-          else return res.json(success_code || 201, doc);
+          else return res.json(success_code_override || 201, doc);
+        });
+
+      });
+
+    };
+  };
+
+  controllers.put = function(Model) {
+    return function(req, res) {
+
+      // check auth
+      check_auth(req, res, function(){
+
+        // search for previous document
+        if(req.body._id === undefined) return res.json(404, {});
+        Model.findOne(req.body._id, function(err, instance){
+          if(instance === undefined) return res.json(404, err);
+
+          // we found the document! let's update it
+          var original_date = instance._date || Date.now();
+          var original_ip = instance._ip || req._remoteAddress || 'localhost';
+          // TODO: this is technically PATCHing....
+          instance._doc = _.assign(req.body, instance._doc);
+          instance._date = original_date;
+          instance._ip = original_ip;
+
+          instance.save(function(err, doc) {
+            if(err) {
+              console.error(err);
+              return res.json(400, err);
+            }
+            else return res.json(200, doc);
+          });
         });
 
       });

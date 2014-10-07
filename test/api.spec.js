@@ -84,7 +84,7 @@ describe('api', function() {
         
         // create vehicle
         function(callback){
-          vehicle = new api.models.Vehicle({imei: valid_raw_tlm_data.imei});
+          vehicle = new api.models.Vehicle({imei: valid_raw_tlm_data.imei, _ip:'api'});
           vehicle.save(function(err, vehicle) {
             callback();
           });
@@ -92,7 +92,7 @@ describe('api', function() {
         
         // create mission
         function(callback){
-          mission = new api.models.Mission({vehicle: vehicle._id});
+          mission = new api.models.Mission({vehicle: vehicle._id, _ip:'api'});
           mission.save(function(err, mission) {
             valid_cmd_data.mission = mission._id;
             callback();
@@ -201,9 +201,16 @@ describe('api', function() {
         api = create_api(config, done);
       });
 
-      it('should block requests with a bad token', function(done){
+      it('should block requests without token', function(done){
         // send request
         request(api).post('/command')
+          .send(valid_cmd_data)
+          .expect(401, done);
+      });
+
+      it('should block requests with a bad token', function(done){
+        // send request
+        request(api).post('/command?token=bad')
           .send(valid_cmd_data)
           .expect(401, done);
       });
@@ -269,8 +276,12 @@ describe('api', function() {
         
         // create vehicle
         function(callback){
-          var vehicle = new api.models.Vehicle({imei: valid_raw_tlm_data.imei});
+          var vehicle = new api.models.Vehicle({
+            _ip: 'api',
+            imei: valid_raw_tlm_data.imei
+          });
           vehicle.save(function(err, vehicle) {
+            expect(err).to.equal(null);
             callback();
           });
         },
@@ -320,11 +331,21 @@ describe('api', function() {
         // create vehicle and mission
         function(callback){
           // create vehicle
-          var vehicle = new api.models.Vehicle({imei: valid_raw_tlm_data.imei});
+          var vehicle = new api.models.Vehicle({
+            _ip: 'api',
+            imei: valid_raw_tlm_data.imei
+          });
           vehicle.save(function(err, vehicle) {
+            expect(err).to.equal(null);
+
             // create mission
-            var mission = new api.models.Mission({vehicle: vehicle._id});
+            var mission = new api.models.Mission({
+              _ip: 'api',
+              vehicle: vehicle._id
+            });
             mission.save(function(err, mission) {
+              expect(err).to.equal(null);
+
               // create pointer to mission in vehicle
               vehicle.current_mission = mission._id;
               vehicle.save(function(err, mission) {
@@ -450,9 +471,16 @@ describe('api', function() {
         api = create_api(config, done);
       });
 
-      it('should block requests with a bad token', function(done){
+      it('should block requests without a token', function(done){
         // send request
         request(api).post('/raw/telemetry')
+          .send(valid_raw_tlm_data)
+          .expect(401, done);
+      });
+
+      it('should block requests with a bad token', function(done){
+        // send request
+        request(api).post('/raw/telemetry?token=bad')
           .send(valid_raw_tlm_data)
           .expect(401, done);
       });
@@ -495,6 +523,28 @@ describe('api', function() {
     });
   });
 
+  describe('PUT to the /vehicle endpoint', function() {
+    it('should not work for a new vehicle', function(done){
+      request(api).put('/vehicle')
+        .send({imei: 'imei'})
+        .expect(404, done);
+    });
+
+    it('should work for an existing vehicle', function(done){
+      var vehicle = new api.models.Vehicle({
+        _ip: 'api',
+        imei: valid_raw_tlm_data.imei
+      });
+      vehicle.save(function(err, vehicle) {
+        expect(err).to.equal(null);
+        // actually try put now
+        request(api).put('/vehicle')
+          .send({_id: vehicle._id, imei: 'imei'})
+          .expect(200, done);
+      });
+    });
+  });
+
   describe('GET to the /mission endpoint', function() {
     it('should work', function(done){
       request(api).get('/mission')
@@ -509,6 +559,9 @@ describe('api', function() {
     //     .send({imei: 'imei'})
     //     .expect(201, done);
     // });
+  });
+
+  describe('PUT to the /mission endpoint', function() {
   });
 
   describe('GET to a collection endpoint', function() {

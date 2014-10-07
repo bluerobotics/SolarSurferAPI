@@ -14,6 +14,9 @@ var create_api = function(config, callback) {
   config.port = Number(process.env.PORT || config.port);
   config.mongo_uri = process.env.MONGOLAB_URI || config.mongo_uri;
   config.auth_token = process.env.AUTH_TOKEN || config.auth_token;
+  config.rockseven_url = process.env.ROCKSEVEN_URL || config.rockseven_url;
+  config.rockseven_user = process.env.ROCKSEVEN_USER || config.rockseven_user;
+  config.rockseven_pass = process.env.ROCKSEVEN_PASS || config.rockseven_pass;
   if(config.logging) console.log('Using config:', config);
 
   // set up server
@@ -46,8 +49,10 @@ var create_api = function(config, callback) {
       // mission routes
       api.get('/mission', controllers.get_list(models.Mission));
       api.post('/mission', controllers.post(models.Mission));
+      api.put('/mission', controllers.put(models.Mission));
       api.get('/vehicle', controllers.get_list(models.Vehicle));
       api.post('/vehicle', controllers.post(models.Vehicle));
+      api.put('/vehicle', controllers.put(models.Vehicle));
 
       // cmd routes
       api.get('/command', controllers.get_list(models.Cmd));
