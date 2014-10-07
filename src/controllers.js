@@ -121,31 +121,6 @@ module.exports = function(api) {
           else return res.json(200, doc);
         });
 
-        // if(req.params._id === undefined) return res.json(404, {});
-        // Model.findOne({_id: req.params._id}, function(err, instance){
-        //   if(instance === undefined) return res.json(404, err);
-
-        //   // we found the document! let's update it
-        //   var original_date = instance._date || Date.now();
-        //   var original_ip = instance._ip || req._remoteAddress || 'localhost';
-        //   if(req.body._id !== undefined) delete req.body._id;
-        //   // TODO: this is technically PATCHing and not PUTing....
-        //   instance._doc = _.assign(req.body, instance._doc);
-
-        //   // force these parameters
-        //   instance._date = original_date;
-        //   instance._ip = original_ip;
-
-        //   // save to the database
-        //   instance.save(function(err, doc) {
-        //     if(err) {
-        //       console.error(err);
-        //       return res.json(400, err);
-        //     }
-        //     else return res.json(200, doc);
-        //   });
-        // });
-
       });
 
     };

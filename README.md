@@ -82,11 +82,15 @@ heroku run node
 
 This project uses [semantic versioning](http://semver.org/).
 
-### v0.2.0 - 2014/08/??
+### v0.3.0 - future
+
+* TODO: Added command POSTing and forwarding
+
+### v0.2.0 - 2014/12/06
 
 * Added GET parameter test cases for where, fields, sort, limit, and skip
 * Refactored auth to token secret string via an environment variable
-* TODO: Added command POSTing and forwarding
+* Add PUT for /vehicle and /mission
 
 ### v0.1.0 - 2014/08/08
 
