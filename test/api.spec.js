@@ -524,12 +524,6 @@ describe('api', function() {
   });
 
   describe('PUT to the /vehicle endpoint', function() {
-    it('should not work for a new vehicle', function(done){
-      request(api).put('/vehicle')
-        .send({imei: 'imei'})
-        .expect(404, done);
-    });
-
     it('should work for an existing vehicle', function(done){
       var vehicle = new api.models.Vehicle({
         _ip: 'api',
@@ -538,8 +532,8 @@ describe('api', function() {
       vehicle.save(function(err, vehicle) {
         expect(err).to.equal(null);
         // actually try put now
-        request(api).put('/vehicle')
-          .send({_id: vehicle._id, imei: 'imei'})
+        request(api).put('/vehicle/'+vehicle._id)
+          .send({imei: 'imei'})
           .expect(200, done);
       });
     });

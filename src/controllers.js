@@ -112,18 +112,22 @@ module.exports = function(api) {
       check_auth(req, res, function(){
 
         // search for previous document
-        if(req.body._id === undefined) return res.json(404, {});
-        Model.findOne(req.body._id, function(err, instance){
+        if(req.params._id === undefined) return res.json(404, {});
+        Model.findOne(req.params._id, function(err, instance){
           if(instance === undefined) return res.json(404, err);
 
           // we found the document! let's update it
           var original_date = instance._date || Date.now();
           var original_ip = instance._ip || req._remoteAddress || 'localhost';
-          // TODO: this is technically PATCHing....
+          // TODO: this is technically PATCHing and not PUTing....
           instance._doc = _.assign(req.body, instance._doc);
+
+          // force these parameters
+          instance._id = req.params._id;
           instance._date = original_date;
           instance._ip = original_ip;
 
+          // save to the database
           instance.save(function(err, doc) {
             if(err) {
               console.error(err);

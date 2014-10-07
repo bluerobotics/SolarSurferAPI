@@ -49,10 +49,10 @@ var create_api = function(config, callback) {
       // mission routes
       api.get('/mission', controllers.get_list(models.Mission));
       api.post('/mission', controllers.post(models.Mission));
-      api.put('/mission', controllers.put(models.Mission));
+      api.put('/mission/:_id', controllers.put(models.Mission));
       api.get('/vehicle', controllers.get_list(models.Vehicle));
       api.post('/vehicle', controllers.post(models.Vehicle));
-      api.put('/vehicle', controllers.put(models.Vehicle));
+      api.put('/vehicle/:_id', controllers.put(models.Vehicle));
 
       // cmd routes
       api.get('/command', controllers.get_list(models.Cmd));
