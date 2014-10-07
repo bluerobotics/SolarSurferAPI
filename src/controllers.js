@@ -113,7 +113,7 @@ module.exports = function(api) {
 
         // search for previous document
         if(req.params._id === undefined) return res.json(404, {});
-        Model.findOne(req.params._id, function(err, instance){
+        Model.findOne({_id: req.params._id}, function(err, instance){
           if(instance === undefined) return res.json(404, err);
 
           // we found the document! let's update it
