@@ -16,20 +16,14 @@ The API is capable of storing telemetry for multiple simultaneous vehicles. All 
 
 This API is nominally available at [http://surfer.bluerobotics.com/](http://surfer.bluerobotics.com/). There are a few available endpoints:
 
-Endpoint | Valid Actions
---- | ---
-`/command` | GET, POST
-`/command/_id`| GET
-`/mission` | GET, POST
-`/mission/_id`| GET, PUT
-`/raw/command` | GET
-`/raw/command/_id` | GET
-`/raw/telemetry` | GET, POST
-`/raw/telemetry/_id` | GET
-`/telemetry`| GET
-`/telemetry/_id` | GET
-`/vehicle` | GET, POST
-`/vehicle/_id`| GET, PUT
+Endpoint | Actions | /:id Actions
+--- | --- | ---
+`/vehicle` | GET, POST | PUT
+`/mission` | GET, POST | PUT
+`/telemetry`| GET |
+`/raw/telemetry` | GET, POST |
+`/command` | GET, POST |
+`/raw/command` | GET |
 
 Most the time, users will only care about the non-raw endpoints as these contain the raw byte-streams to and from RockSeven. All POST and PUT requests require the correct `?token=` to be passed in the query string.
 
