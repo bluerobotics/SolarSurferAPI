@@ -79,6 +79,7 @@ This project uses [semantic versioning](http://semver.org/).
 ### v0.3.0 - future
 
 * TODO: Added command POSTing and forwarding
+* TODO: depend on a specific version of message format
 
 ### v0.2.0 - 2014/12/06
 

@@ -46,12 +46,12 @@ describe('api', function() {
       iridium_latitude: '33.8612',
       iridium_longitude: '-118.3447',
       iridium_cep: '3',
-      data: '010054686520536f6c617253757266657220697320676f696e6720746f204861776169692120486f706566756c6c792ef785'
+      data: '020054686520536f6c617253757266657220697320676f696e6720746f204861776169692120486f706566756c6c792ef5aa'
     };
     valid_cmd_data = {
       mission: '',
       data: {
-        _version: 1,
+        _version: 2,
         _format: 0,
         message: 'The SolarSurfer is going to Hawaii! Hopefully.'
       }
@@ -571,7 +571,7 @@ describe('api', function() {
         },
 
         function(callback){
-          valid_raw_tlm_data.data = '01004920616d206120646966666572656e7420737472696e6720666f72204861776169692120486f706566756c6c792ef971';
+          valid_raw_tlm_data.data = '02004920616d206120646966666572656e7420737472696e6720666f72204861776169692120486f706566756c6c792efb5e';
           valid_raw_tlm_data.serial = '0001';
           request(api).post('/raw/telemetry')
             .send(valid_raw_tlm_data)
