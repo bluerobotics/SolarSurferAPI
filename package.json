@@ -22,7 +22,7 @@
     "node": "0.10.x"
   },
   "dependencies": {
-    "SolarSurferMessage": "git+https://github.com/bluerobotics/SolarSurferMessage.git#master",
+    "SolarSurferMessage": "git+https://github.com/bluerobotics/SolarSurferMessage.git#v0.2.0",
     "body-parser": "^1.4.3",
     "cors": "^2.4.1",
     "express": "^4.4.4",

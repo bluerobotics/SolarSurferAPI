@@ -80,12 +80,12 @@ There is also a backup script that let's you save a local copy of the entire rem
 
 This project uses [semantic versioning](http://semver.org/).
 
-### v0.3.0 - future
+### v0.3.0 - 2014/10/12
 
 * Added command POSTing and forwarding
 * Added database backup script (must have mongodump installed)
 * Removed `/raw/` endpoints - raw messages is simply stored alongside fully expanded messages now
-* TODO: Depend on a specific version of message format to prevent future errors
+* Depend on a specific version of message format to prevent future errors
 
 ### v0.2.0 - 2014/12/06
 
