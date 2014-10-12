@@ -207,7 +207,7 @@ module.exports = function(api) {
                       imei: instance.imei,
                       username: api.config.rockseven_user,
                       password: api.config.rockseven_pass,
-                      // data: instance.raw
+                      data: instance.raw
                     }
                   }, function(err, resp, body){
                     if(resp.status == 200) save();
