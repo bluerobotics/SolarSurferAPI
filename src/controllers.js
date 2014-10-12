@@ -186,6 +186,17 @@ module.exports = function(api) {
                   return res.status(400).json({errors: ['Message encode error', e]});
                 }
 
+                // 6: save the document
+                var save = function() {
+                  instance.save(function(err, doc) {
+                    if(err) {
+                      console.error(err);
+                      return res.status(400).json(err);
+                    }
+                    else return res.status(201).json(doc);
+                  });
+                };
+
                 // 5: try to POST the command to RockSeven
                 // var data = ;
                 if(api.config.rockseven_url !== undefined) {
@@ -196,21 +207,16 @@ module.exports = function(api) {
                       imei: instance.imei,
                       username: api.config.rockseven_user,
                       password: api.config.rockseven_pass,
-                      data: instance.raw
+                      // data: instance.raw
                     }
                   }, function(err, resp, body){
-                    console.log(err, resp, body);
+                    if(resp.status == 200) save();
+                    else res.status(400).json({
+                      errors: [err, resp, body]
+                    });
                   });
                 }
-
-                // 6: save the document
-                instance.save(function(err, doc) {
-                  if(err) {
-                    console.error(err);
-                    return res.status(400).json(err);
-                  }
-                  else return res.json(201, doc);
-                });
+                else save();
               }
             });
           }
