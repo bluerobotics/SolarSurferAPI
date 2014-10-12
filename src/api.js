@@ -35,6 +35,12 @@ var create_api = function(config, callback) {
     api.db.once('open', function() {
       if(config.logging) console.log('MongoDB connection open');
 
+      // prep Message class
+      var Message = require('SolarSurferMessage');
+      Message.loadConfigFile();
+      console.log('Message format version:', Message.version);
+      api.Message = Message;
+
       // import models
       var models = require('./models.js');
       api.models = models;
@@ -58,8 +64,7 @@ var create_api = function(config, callback) {
 
       // cmd routes
       api.get('/command', controllers.get_list(models.Cmd));
-      api.post('/command', controllers.post(models.Cmd));
-      api.get('/raw/command', controllers.get_list(models.RawCmd));
+      api.post('/command', controllers.post_cmd(models.Cmd));
 
       // tlm routes
       api.get('/telemetry', controllers.get_list(models.Tlm));

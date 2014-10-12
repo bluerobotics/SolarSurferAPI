@@ -35,6 +35,7 @@ describe('api', function() {
     config.debug = false;
     config.logging = false;
     config.auth_token = undefined;
+    config.rockseven_url = undefined;
 
     // reusable ata chunks
     valid_raw_tlm_data = {
@@ -139,6 +140,7 @@ describe('api', function() {
         
         // send request
         function(callback){
+          valid_cmd_data.mission = mission._id;
           request(api).post('/command')
             .send(valid_cmd_data)
             .expect(201, callback);
@@ -147,35 +149,6 @@ describe('api', function() {
         // verify that a document has been added to the database
         function(callback){
           api.models.Cmd.count({}, function(err, count){
-            expect(count).to.equal(1);
-            callback();
-          });
-        },
-
-      ], done);
-    });
-
-    it('should add the encoded document to /raw/command', function(done){
-      async.series([
-
-        // verify that the db is empty
-        function(callback){
-          api.models.RawCmd.count({}, function(err, count){
-            expect(count).to.equal(0);
-            callback();
-          });
-        },
-        
-        // send request
-        function(callback){
-          request(api).post('/command')
-            .send(valid_cmd_data)
-            .expect(201, callback);
-        },
-
-        // verify that a document has been added to the database
-        function(callback){
-          api.models.RawCmd.count({}, function(err, count){
             expect(count).to.equal(1);
             callback();
           });

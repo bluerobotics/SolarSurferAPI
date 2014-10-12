@@ -2,7 +2,6 @@
 /* jslint node: true */
 
 // import
-var request = require('request');
 var mongoose = require('mongoose'),
     idvalidator = require('mongoose-id-validator'),
     Schema = mongoose.Schema;
@@ -17,41 +16,14 @@ console.log('Message format version:', Message.version);
 var models = {};
 var schemaOptions = { strict: false, versionKey: '_etag' };
 
-var CmdSchema = new Schema({
+// Command
+models.Cmd = mongoose.model('Cmd', new Schema({
   _date:    {type: Date, default: Date.now(), required: true},
   _ip:      {type: String, required: true},
   mission:  {type: Schema.Types.ObjectId, ref: 'Mission', required: true},
   data:     {type: Schema.Types.Mixed, required: true},
-}, schemaOptions).plugin(idvalidator);
-CmdSchema.post('save', function (doc) {
-  // try to encoding this message automatically
-  console.log('Encoding: ', doc.data);
-  try {
-    var encoded = Message.encode(doc.data);
-    var rawcmd = new models.RawCmd(doc.toObject());
-    rawcmd.data = encoded;
-
-    // fetch the imei from the mission's vehicle
-    // console.log('RAWCMD', rawcmd.mission)
-    rawcmd.imei = 'fake'
-    // delete tlm._id;
-    // console.log(tlm)
-    rawcmd.save();
-  }
-  catch(e) {
-    // oh well, I guess we can't encode it...
-    console.log('Message encode error:', e);
-  }
-});
-models.Cmd = mongoose.model('Cmd', CmdSchema);
-
-models.RawCmd = mongoose.model('RawCmd', new Schema({
-  _date:    {type: Date, default: Date.now(), required: true},
-  _ip:      {type: String, required: true},
-  imei:     {type: String, required: true}, // International Mobile Equipment Identity
-  mission:  {type: Schema.Types.ObjectId, ref: 'Mission', required: true},
-  data:     {type: String, required: true},
-}, schemaOptions)); //.plugin(idvalidator)
+  raw:      {type: String, required: true},
+}, schemaOptions).plugin(idvalidator));
 
 // Vehicle
 models.Vehicle = mongoose.model('Vehicle', new Schema({

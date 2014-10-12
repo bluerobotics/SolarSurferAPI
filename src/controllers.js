@@ -1,7 +1,7 @@
 'use strict';
 /* jslint node: true */
 
-var dns = require('dns');
+var request = require('request');
 var _ = require('lodash');
 
 module.exports = function(api) {
@@ -51,7 +51,7 @@ module.exports = function(api) {
       Model.count(where, function(err, count) {
         if(err) {
           console.error(err);
-          res.json(400, err);
+          res.status(400).json(err);
         }
         else {
           var fields = req.query.fields || null;
@@ -65,7 +65,7 @@ module.exports = function(api) {
           Model.find(where, fields, options, function(err, documents) {
             if(err) {
               console.error(err);
-              res.json(400, err);
+              res.status(400).json(err);
             }
             else res.json({
               items: documents,
@@ -95,7 +95,7 @@ module.exports = function(api) {
       Model.findOne(where, fields, options, function(err, document) {
         if(err) {
           console.error(err);
-          res.json(400, err);
+          res.status(400).json(err);
         }
         else res.json(document);
       });
@@ -120,7 +120,7 @@ module.exports = function(api) {
         instance.save(function(err, doc) {
           if(err) {
             console.error(err);
-            return res.json(400, err);
+            return res.status(400).json(err);
           }
           else return res.json(success_code_override || 201, doc);
         });
@@ -141,12 +141,82 @@ module.exports = function(api) {
         Model.findOneAndUpdate({_id: req.params._id}, req.body, function (err, doc) {
           if(err) {
             console.error(err);
-            return res.json(400, err);
+            return res.status(400).json(err);
           }
           else return res.json(200, doc);
         });
 
       });
+
+    };
+  };
+
+  controllers.post_cmd = function(Model) {
+    return function(req, res) {
+
+      // check auth
+      check_auth(req, res, function(){
+
+        // 1: make document from request payload
+        var instance = new Model(req.body);
+        instance._date = Date.now();
+        instance._ip = req._remoteAddress || 'localhost';
+
+        // 2: verify that we have a payload
+        if(instance.data === undefined || typeof instance.data != 'object')
+          return res.status(400).json({errors: 'data must be defined and be an object'});
+
+        // 3: look up the mission to get the imei
+        api.models.Mission.findOne({_id: instance.mission}, function(err, mission){
+          if(mission === undefined || mission === null)
+            return res.status(400).json({errors: 'could not find mission'});
+          else {
+            api.models.Vehicle.findOne({_id: mission.vehicle}, function(err, vehicle){
+              if(vehicle === undefined || vehicle === null)
+                return res.status(400).json({errors: 'could not find vehicle'});
+              else {
+                instance.imei = vehicle.imei;
+
+                // 4: try to encode the command
+                try {
+                  instance.raw = api.Message.encode(instance.data);
+                }
+                catch(e) {
+                  // oh well, I guess we can't encode it...
+                  return res.status(400).json({errors: ['Message encode error', e]});
+                }
+
+                // 5: try to POST the command to RockSeven
+                // var data = ;
+                if(api.config.rockseven_url !== undefined) {
+                  request({
+                    uri: api.config.rockseven_url,
+                    method: 'POST',
+                    form: {
+                      imei: instance.imei,
+                      username: api.config.rockseven_user,
+                      password: api.config.rockseven_pass,
+                      data: instance.raw
+                    }
+                  }, function(err, resp, body){
+                    console.log(err, resp, body);
+                  });
+                }
+
+                // 6: save the document
+                instance.save(function(err, doc) {
+                  if(err) {
+                    console.error(err);
+                    return res.status(400).json(err);
+                  }
+                  else return res.json(201, doc);
+                });
+              }
+            });
+          }
+        }); // end of mission lookup
+
+      }); // end of check_auth
 
     };
   };
