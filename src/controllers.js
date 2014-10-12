@@ -209,10 +209,10 @@ module.exports = function(api) {
                       password: api.config.rockseven_pass,
                       data: instance.raw
                     }
-                  }, function(err, resp, body){
-                    if(resp.status == 200) save();
+                  }, function(err, response, body){
+                    if(response.statusCode == 200) save();
                     else res.status(400).json({
-                      errors: [err, resp, body]
+                      errors: [err, response, body]
                     });
                   });
                 }
