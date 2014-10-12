@@ -20,10 +20,8 @@ Endpoint | Actions | /:id Actions
 --- | --- | ---
 `/vehicle` | GET, POST | GET, PUT
 `/mission` | GET, POST | GET, PUT
-`/telemetry`| GET |
-`/raw/telemetry` | GET, POST |
+`/telemetry`| GET, POST |
 `/command` | GET, POST |
-`/raw/command` | GET |
 
 Most the time, users will only care about the non-raw endpoints as these contain the raw byte-streams to and from RockSeven. All POST and PUT requests require the correct `?token=` to be passed in the query string.
 
@@ -66,10 +64,16 @@ heroku open
 
 Once you get up and running, also try out these fun commands:
 
-```
+```bash
 heroku ps
 heroku logs
 heroku run node
+```
+
+There is also a backup script that let's you save a local copy of the entire remote database. Backups are stored in `backups/` after running the script:
+
+```bash
+./scripts/backup.sh dsXXXXXX.mongolab.com:XXXXX database_name user_name password
 ```
 
 ## Change History
@@ -78,8 +82,10 @@ This project uses [semantic versioning](http://semver.org/).
 
 ### v0.3.0 - future
 
-* TODO: Added command POSTing and forwarding
-* TODO: depend on a specific version of message format
+* Added command POSTing and forwarding
+* Added database backup script (must have mongodump installed)
+* Removed `/raw/` endpoints - raw messages is simply stored alongside fully expanded messages now
+* TODO: Depend on a specific version of message format to prevent future errors
 
 ### v0.2.0 - 2014/12/06
 
