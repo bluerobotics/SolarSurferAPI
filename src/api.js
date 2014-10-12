@@ -50,13 +50,14 @@ var create_api = function(config, callback) {
 
       // helper routes
       api.get('', controllers.index);
-      api.get('/raw', controllers.raw);
 
       // mission routes
       api.get('/mission', controllers.get_list(models.Mission));
       api.post('/mission', controllers.post(models.Mission));
       api.get('/mission/:_id', controllers.get_item(models.Mission));
       api.put('/mission/:_id', controllers.put(models.Mission));
+
+      // vehicle routes
       api.get('/vehicle', controllers.get_list(models.Vehicle));
       api.post('/vehicle', controllers.post(models.Vehicle));
       api.get('/vehicle/:_id', controllers.get_item(models.Vehicle));
@@ -68,8 +69,7 @@ var create_api = function(config, callback) {
 
       // tlm routes
       api.get('/telemetry', controllers.get_list(models.Tlm));
-      api.get('/raw/telemetry', controllers.get_list(models.RawTlm));
-      api.post('/raw/telemetry', controllers.post(models.RawTlm, 200));
+      api.post('/telemetry', controllers.post(models.Tlm, 200));
 
       // api build is complete!
       if(callback) callback();

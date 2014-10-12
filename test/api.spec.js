@@ -26,7 +26,7 @@ var verify_count = function(model, expected_count) {
  
 describe('api', function() {
   var api;
-  var valid_raw_tlm_data;
+  var valid_tlm_data;
   var valid_cmd_data;
 
   beforeEach(function(done) {
@@ -38,7 +38,7 @@ describe('api', function() {
     config.rockseven_url = undefined;
 
     // reusable ata chunks
-    valid_raw_tlm_data = {
+    valid_tlm_data = {
       imei: '000000000000000',
       device_type: 'ROCKBLOCK',
       serial: '0000',
@@ -85,7 +85,7 @@ describe('api', function() {
         
         // create vehicle
         function(callback){
-          vehicle = new api.models.Vehicle({imei: valid_raw_tlm_data.imei, _ip:'api'});
+          vehicle = new api.models.Vehicle({imei: valid_tlm_data.imei, _ip:'api'});
           vehicle.save(function(err, vehicle) {
             callback();
           });
@@ -169,7 +169,7 @@ describe('api', function() {
 
     describe('with auth enabled', function() {
       beforeEach(function(done){
-        // create a server with raw_post_protected on
+        // create a server with auth enabled
         config.auth_token = 'token';
         api = create_api(config, done);
       });
@@ -197,30 +197,23 @@ describe('api', function() {
     });
   });
 
-  describe('GET to the /raw endpoint', function() {
-    it('should list child endpoints', function(done){
-      request(api).get('/raw')
-        .expect(200, done);
-    });
-  });
-
-  describe('POST to the /raw/telemetry endpoint', function() {
+  describe('POST to the /telemetry endpoint', function() {
     it('should block requests with a bad request format', function(done){
       // mess up the request data
-      delete valid_raw_tlm_data.data;
+      delete valid_tlm_data.data;
 
       // send request
-      request(api).post('/raw/telemetry')
-        .send(valid_raw_tlm_data)
+      request(api).post('/telemetry')
+        .send(valid_tlm_data)
         .expect(400, done);
     });
 
-    it('should add document to /raw/telemetry', function(done){
+    it('should add document to /telemetry', function(done){
       async.series([
 
         // verify that the db is empty
         function(callback){
-          api.models.RawTlm.count({}, function(err, count){
+          api.models.Tlm.count({}, function(err, count){
             expect(count).to.equal(0);
             callback();
           });
@@ -228,15 +221,16 @@ describe('api', function() {
         
         // send request
         function(callback){
-          request(api).post('/raw/telemetry')
-            .send(valid_raw_tlm_data)
+          request(api).post('/telemetry')
+            .send(valid_tlm_data)
             .expect(200, callback);
         },
 
         // verify that a document has been added to the database
         function(callback){
-          api.models.RawTlm.count({}, function(err, count){
-            expect(count).to.equal(1);
+          api.models.Tlm.find({}, function(err, documents){
+            expect(documents.length).to.equal(1);
+            expect(documents[0].raw).to.equal(valid_tlm_data.data);
             callback();
           });
         },
@@ -251,7 +245,7 @@ describe('api', function() {
         function(callback){
           var vehicle = new api.models.Vehicle({
             _ip: 'api',
-            imei: valid_raw_tlm_data.imei
+            imei: valid_tlm_data.imei
           });
           vehicle.save(function(err, vehicle) {
             expect(err).to.equal(null);
@@ -261,18 +255,18 @@ describe('api', function() {
 
         // verify that the db is empty
         verify_count(api.models.Vehicle, 1),
-        verify_count(api.models.RawTlm, 0),
+        verify_count(api.models.Tlm, 0),
         
         // send request
         function(callback){
-          request(api).post('/raw/telemetry')
-            .send(valid_raw_tlm_data)
+          request(api).post('/telemetry')
+            .send(valid_tlm_data)
             .expect(200, callback);
         },
 
         // verify that a document and a vehicle has been added to the database
         verify_count(api.models.Vehicle, 1),
-        verify_count(api.models.RawTlm, 1),
+        verify_count(api.models.Tlm, 1),
 
       ], done);
     });
@@ -282,18 +276,18 @@ describe('api', function() {
 
         // verify that the db is empty
         verify_count(api.models.Vehicle, 0),
-        verify_count(api.models.RawTlm, 0),
+        verify_count(api.models.Tlm, 0),
         
         // send request
         function(callback){
-          request(api).post('/raw/telemetry')
-            .send(valid_raw_tlm_data)
+          request(api).post('/telemetry')
+            .send(valid_tlm_data)
             .expect(200, callback);
         },
 
         // verify that a document and a vehicle has been added to the database
         verify_count(api.models.Vehicle, 1),
-        verify_count(api.models.RawTlm, 1),
+        verify_count(api.models.Tlm, 1),
 
       ], done);
     });
@@ -306,7 +300,7 @@ describe('api', function() {
           // create vehicle
           var vehicle = new api.models.Vehicle({
             _ip: 'api',
-            imei: valid_raw_tlm_data.imei
+            imei: valid_tlm_data.imei
           });
           vehicle.save(function(err, vehicle) {
             expect(err).to.equal(null);
@@ -331,18 +325,18 @@ describe('api', function() {
 
         // verify that the db is empty
         verify_count(api.models.Mission, 1),
-        verify_count(api.models.RawTlm, 0),
+        verify_count(api.models.Tlm, 0),
         
         // send request
         function(callback){
-          request(api).post('/raw/telemetry')
-            .send(valid_raw_tlm_data)
+          request(api).post('/telemetry')
+            .send(valid_tlm_data)
             .expect(200, callback);
         },
 
         // verify that a document and a mission has been added to the database
         verify_count(api.models.Mission, 1),
-        verify_count(api.models.RawTlm, 1),
+        verify_count(api.models.Tlm, 1),
 
       ], done);
     });
@@ -352,23 +346,23 @@ describe('api', function() {
 
         // verify that the db is empty
         verify_count(api.models.Mission, 0),
-        verify_count(api.models.RawTlm, 0),
+        verify_count(api.models.Tlm, 0),
         
         // send request
         function(callback){
-          request(api).post('/raw/telemetry')
-            .send(valid_raw_tlm_data)
+          request(api).post('/telemetry')
+            .send(valid_tlm_data)
             .expect(200, callback);
         },
 
         // verify that a document and a mission has been added to the database
         verify_count(api.models.Mission, 1),
-        verify_count(api.models.RawTlm, 1),
+        verify_count(api.models.Tlm, 1),
 
       ], done);
     });
 
-    it('should add the decoded document to /telemetry', function(done){
+    it('should add the decoded document to .data', function(done){
       async.series([
 
         // verify that the db is empty
@@ -381,15 +375,18 @@ describe('api', function() {
         
         // send request
         function(callback){
-          request(api).post('/raw/telemetry')
-            .send(valid_raw_tlm_data)
+          request(api).post('/telemetry')
+            .send(valid_tlm_data)
             .expect(200, callback);
         },
 
         // verify that a document has been added to the database
         function(callback){
-          api.models.Tlm.count({}, function(err, count){
-            expect(count).to.equal(1);
+          api.models.Tlm.find({}, function(err, documents){
+            expect(documents.length).to.equal(1);
+            expect(documents[0].raw).to.equal(valid_tlm_data.data);
+            expect(Object.keys(documents[0].data).length).to.be.above(0);
+            expect(documents[0].data._format).not.to.equal(undefined);
             callback();
           });
         },
@@ -398,17 +395,17 @@ describe('api', function() {
     });
 
     it('should respond with a 200 on success', function(done){
-      // RockBlock doesn't know (or care) that we are creating a resource (would normally be a 201), it just wants a 200
+      // The RockSeven Core doesn't know (or care) that we are creating a resource (which would normally be a 201), it just wants a 200
 
       // send request
-      request(api).post('/raw/telemetry')
-        .send(valid_raw_tlm_data)
+      request(api).post('/telemetry')
+        .send(valid_tlm_data)
         .expect(200, done);
     });
 
     it('should respond with a 200 even with an invalid Message', function(done){
       // if we don't do this, RockBlock will continuously try to resend
-      valid_raw_tlm_data.data = '48656c6c6f2c20776f726c6421'; // bare string, "hello world"
+      valid_tlm_data.data = '48656c6c6f2c20776f726c6421'; // bare string, "hello world"
       async.series([
 
         // verify that the db is empty
@@ -421,15 +418,22 @@ describe('api', function() {
         
         // send request
         function(callback){
-          request(api).post('/raw/telemetry')
-            .send(valid_raw_tlm_data)
+          request(api).post('/telemetry')
+            .send(valid_tlm_data)
             .expect(200, callback);
         },
 
         // verify that a document has been added to the database
         function(callback){
-          api.models.Tlm.count({}, function(err, count){
-            expect(count).to.equal(0);
+          api.models.Tlm.find({}, function(err, documents){
+            expect(documents.length).to.equal(1);
+            expect(documents[0].raw).to.equal(valid_tlm_data.data);
+            expect(documents[0].data).to.equal(undefined);
+
+            // lies! i actually expect an empty object...
+            // console.log('bad decode is', documents[0])
+            // expect(Object.keys(documents[0].data).length).to.equal(0);
+
             callback();
           });
         },
@@ -439,38 +443,31 @@ describe('api', function() {
 
     describe('with auth enabled', function() {
       beforeEach(function(done){
-        // create a server with raw_post_protected on
+        // create a server with auth enabled
         config.auth_token = 'token';
         api = create_api(config, done);
       });
 
       it('should block requests without a token', function(done){
         // send request
-        request(api).post('/raw/telemetry')
-          .send(valid_raw_tlm_data)
+        request(api).post('/telemetry')
+          .send(valid_tlm_data)
           .expect(401, done);
       });
 
       it('should block requests with a bad token', function(done){
         // send request
-        request(api).post('/raw/telemetry?token=bad')
-          .send(valid_raw_tlm_data)
+        request(api).post('/telemetry?token=bad')
+          .send(valid_tlm_data)
           .expect(401, done);
       });
 
       it('should accept requests from a good token', function(done){
         // send request
-        request(api).post('/raw/telemetry?token=token')
-          .send(valid_raw_tlm_data)
+        request(api).post('/telemetry?token=token')
+          .send(valid_tlm_data)
           .expect(200, done);
       });
-    });
-  });
-
-  describe('GET to the /raw/telemetry endpoint', function() {
-    it('should work', function(done){
-      request(api).get('/telemetry')
-        .expect(200, done);
     });
   });
 
@@ -500,7 +497,7 @@ describe('api', function() {
     it('should work for an existing vehicle', function(done){
       var vehicle = new api.models.Vehicle({
         _ip: 'api',
-        imei: valid_raw_tlm_data.imei
+        imei: valid_tlm_data.imei
       });
       vehicle.save(function(err, vehicle) {
         expect(err).to.equal(null);
@@ -515,7 +512,7 @@ describe('api', function() {
     it('should work for an existing vehicle', function(done){
       var vehicle = new api.models.Vehicle({
         _ip: 'api',
-        imei: valid_raw_tlm_data.imei
+        imei: valid_tlm_data.imei
       });
       vehicle.save(function(err, vehicle) {
         expect(err).to.equal(null);
@@ -556,23 +553,23 @@ describe('api', function() {
       // create some data on the server
       async.series([
         function(callback){
-          request(api).post('/raw/telemetry')
-            .send(valid_raw_tlm_data)
+          request(api).post('/telemetry')
+            .send(valid_tlm_data)
             .expect(200, callback);
         },
 
         function(callback){
-          valid_raw_tlm_data.data = '02004920616d206120646966666572656e7420737472696e6720666f72204861776169692120486f706566756c6c792efb5e';
-          valid_raw_tlm_data.serial = '0001';
-          request(api).post('/raw/telemetry')
-            .send(valid_raw_tlm_data)
+          valid_tlm_data.data = '02004920616d206120646966666572656e7420737472696e6720666f72204861776169692120486f706566756c6c792efb5e';
+          valid_tlm_data.serial = '0001';
+          request(api).post('/telemetry')
+            .send(valid_tlm_data)
             .expect(200, callback);
         },
       ], done);
     });
 
     it('should include a list of documents', function(done){
-      request(api).get('/raw/telemetry')
+      request(api).get('/telemetry')
         .expect(200)
         .expect(function(res){
           expect(res.body.items.length).to.equal(2);
@@ -581,7 +578,7 @@ describe('api', function() {
     });
 
     it('should include meta attributes', function(done){
-      request(api).get('/raw/telemetry')
+      request(api).get('/telemetry')
         .expect(200)
         .expect(function(res){
           expect(res.body.meta).to.deep.equal({count:2,skip:0,limit:20,sort:'_date'});

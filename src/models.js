@@ -43,42 +43,53 @@ models.Mission = mongoose.model('Mission', new Schema({
 }, schemaOptions).plugin(idvalidator));
 
 // Tlm
-models.Tlm = mongoose.model('Tlm', new Schema({
+var TlmSchema = new Schema({
   _date:    {type: Date, default: Date.now(), required: true},
   _ip:      {type: String, required: true},
   imei:     {type: String, required: true}, // International Mobile Equipment Identity
   mission:  {type: Schema.Types.ObjectId, ref: 'Mission', required: true},
   data:     {type: Schema.Types.Mixed, required: true},
-}, schemaOptions)); //.plugin(idvalidator)
-
-// Raw Tlm
-var RawTlmSchema = new Schema({
-  _date:    {type: Date, default: Date.now(), required: true},
-  _ip:      {type: String, required: true},
-  imei:     {type: String, required: true}, // International Mobile Equipment Identity
-  mission:  {type: Schema.Types.ObjectId, ref: 'Mission', required: true},
-  data:     {type: String, required: true},
+  raw:      {type: String, required: true},
 }, schemaOptions).plugin(idvalidator);
-RawTlmSchema.pre('validate', function (next) {
-  var raw_tlm = this;
+TlmSchema.pre('validate', function (next) {
+  var tlm = this;
 
-  // need imei to continue, validation with throw an error later if needed
-  if(raw_tlm.imei === undefined) next();
+  // RockSeven posts "data" but we want to call this "raw"
+  tlm.raw = tlm.data;
+  tlm.data = {};
+
+  // 1: need imei to continue, validation with throw an error later if needed
+  if(tlm.imei === undefined) next();
 
   // determine which mission this telemetry belongs to
   else {
-    // once we have the vehicle, do this
+    // 4: try to decode the data
+    var decode_data = function(tlm) {
+      console.log('Decoding: ', tlm.raw);
+      try {
+        tlm.data = Message.decode(tlm.raw);
+      }
+      catch(e) {
+        // oh well, I guess we can't decode it...
+        console.log('Message decode error:', e);
+      }
+
+      // 5: ready to move on, regardless of if decoding worked or not
+      next();
+    };
+
+    // 3: once we have the vehicle, do this
     var vehicle_callback = function(vehicle) {
       if(vehicle.current_mission !== undefined) {
         // great! we've already established a current mission
-        raw_tlm.mission = vehicle.current_mission;
-        next();
+        tlm.mission = vehicle.current_mission;
+        decode_data(tlm);
       }
       else {
         // looks like we need to create a mission
         var mission = new models.Mission({
-          _date: raw_tlm._date,
-          _ip: raw_tlm._ip,
+          _date: tlm._date,
+          _ip: tlm._ip,
           vehicle: vehicle._id
         });
         mission.save(function(err, doc) {
@@ -88,29 +99,29 @@ RawTlmSchema.pre('validate', function (next) {
           }
           else {
             // make sure we save this new mission back at the vehicle
-            raw_tlm.mission = doc._id;
+            tlm.mission = doc._id;
             vehicle.current_mission = doc._id;
             vehicle.save(function(err, doc) {
               if(err) console.error('Unable to add current_mission to vehicle', err);
 
-              // we are finally ready to go
-              next();
+              // next step!
+              decode_data(tlm);
             });
           }
         });
       }
     };
 
-    // look up or create vehicle
-    models.Vehicle.findOne({imei: raw_tlm.imei}, function(err, vehicle){
+    // 2: look up or create vehicle
+    models.Vehicle.findOne({imei: tlm.imei}, function(err, vehicle){
       if(vehicle !== undefined && vehicle !== null) vehicle_callback(vehicle);
       else {
         // looks like we need to create a vehicle
         vehicle = new models.Vehicle({
-          _date: raw_tlm._date,
-          _ip: raw_tlm._ip,
-          name: raw_tlm.imei,
-          imei: raw_tlm.imei
+          _date: tlm._date,
+          _ip: tlm._ip,
+          name: tlm.imei,
+          imei: tlm.imei
         });
         vehicle.save(function(err, doc) {
           if(err) {
@@ -123,23 +134,7 @@ RawTlmSchema.pre('validate', function (next) {
     });
   }
 });
-RawTlmSchema.post('save', function (doc) {
-  // try to decode this message automatically
-  console.log('Decoding: ', doc.data);
-  try {
-    var decoded = Message.decode(doc.data);
-    var tlm = new models.Tlm(doc.toObject());
-    tlm.data = decoded;
-    // delete tlm._id;
-    // console.log(tlm)
-    tlm.save();
-  }
-  catch(e) {
-    // oh well, I guess we can't decode it...
-    console.log('Message decode error:', e);
-  }
-});
-models.RawTlm = mongoose.model('RawTlm', RawTlmSchema);
+models.Tlm = mongoose.model('Tlm', TlmSchema);
 
 // actual module export
 module.exports = models;

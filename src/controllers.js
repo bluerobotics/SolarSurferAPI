@@ -32,13 +32,6 @@ module.exports = function(api) {
     ]);
   };
 
-  controllers.raw = function(req, res) {
-    res.json([
-      '/raw/command',
-      '/raw/telemetry'
-    ]);
-  };
-
   controllers.get_list = function(Model) {
     return function(req, res) {
       var where = {};
