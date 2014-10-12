@@ -523,7 +523,22 @@ describe('api', function() {
     });
   });
 
-  describe('PUT to the /vehicle endpoint', function() {
+  describe('GET to the /vehicle/_id endpoint', function() {
+    it('should work for an existing vehicle', function(done){
+      var vehicle = new api.models.Vehicle({
+        _ip: 'api',
+        imei: valid_raw_tlm_data.imei
+      });
+      vehicle.save(function(err, vehicle) {
+        expect(err).to.equal(null);
+        // actually try get now
+        request(api).get('/vehicle/'+vehicle._id)
+          .expect(200, done);
+      });
+    });
+  });
+
+  describe('PUT to the /vehicle/_id endpoint', function() {
     it('should work for an existing vehicle', function(done){
       var vehicle = new api.models.Vehicle({
         _ip: 'api',
@@ -555,7 +570,10 @@ describe('api', function() {
     // });
   });
 
-  describe('PUT to the /mission endpoint', function() {
+  describe('GET to the /mission/_id endpoint', function() {
+  });
+
+  describe('PUT to the /mission/_id endpoint', function() {
   });
 
   describe('GET to a collection endpoint', function() {

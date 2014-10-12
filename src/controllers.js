@@ -78,6 +78,31 @@ module.exports = function(api) {
     };
   };
 
+  controllers.get_item = function(Model) {
+    return function(req, res) {
+      var where = {};
+      try {
+        where = JSON.parse(req.query.where);
+      }
+      catch(e) {}
+      where._id = req.params._id;
+      var fields = req.query.fields || null;
+      var options = {
+        sort: req.query.sort || '_date'
+      };
+
+      // pull the document
+      Model.findOne(where, fields, options, function(err, document) {
+        if(err) {
+          console.error(err);
+          res.json(400, err);
+        }
+        else res.json(document);
+      });
+
+    };
+  };
+
   controllers.post = function(Model, success_code_override) {
     return function(req, res) {
 

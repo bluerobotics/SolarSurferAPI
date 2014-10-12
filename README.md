@@ -18,8 +18,8 @@ This API is nominally available at [http://surfer.bluerobotics.com/](http://surf
 
 Endpoint | Actions | /:id Actions
 --- | --- | ---
-`/vehicle` | GET, POST | PUT
-`/mission` | GET, POST | PUT
+`/vehicle` | GET, POST | GET, PUT
+`/mission` | GET, POST | GET, PUT
 `/telemetry`| GET |
 `/raw/telemetry` | GET, POST |
 `/command` | GET, POST |
