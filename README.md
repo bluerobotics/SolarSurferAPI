@@ -23,7 +23,7 @@ Endpoint | Actions | /:id Actions
 `/telemetry`| GET, POST |
 `/command` | GET, POST |
 
-Most the time, users will only care about the non-raw endpoints as these contain the raw byte-streams to and from RockSeven. All POST and PUT requests require the correct `?token=` to be passed in the query string.
+All POST and PUT requests require the correct `?token=` to be passed in the query string.
 
 ### GET on a collection
 
