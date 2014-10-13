@@ -14,7 +14,7 @@ The API is capable of storing telemetry for multiple simultaneous vehicles. All 
 
 ### API
 
-This API is nominally available at [http://surfer.bluerobotics.com/](http://surfer.bluerobotics.com/). There are a few available endpoints:
+This API is built on MongoDB and exposes json documents via REST-like endpoints. There are a four available endpoints:
 
 Endpoint | Actions | /:id Actions
 --- | --- | ---
@@ -24,8 +24,6 @@ Endpoint | Actions | /:id Actions
 `/command` | GET, POST |
 
 All POST and PUT requests require the correct `?token=` to be passed in the query string.
-
-### GET on a collection
 
 On the collection endpoints, the following query parameters are supported:
 
